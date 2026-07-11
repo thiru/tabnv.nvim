@@ -343,8 +343,8 @@ function M.set_keybinds()
   vim.keymap.set('t', '<C-space>', '<C-\\><C-n>', {desc = 'Terminal mode -> normal mode'})
 
   -- Up/down
-  vim.keymap.set('t', '<C-n>', '<Down>', {desc = 'Terminal mode -> down arrow'})
-  vim.keymap.set('t', '<C-p>', '<Up>', {desc = 'Terminal mode -> up arrow'})
+  vim.keymap.set('t', '<C-j>', '<Down>', {desc = 'Terminal mode -> down arrow'})
+  vim.keymap.set('t', '<C-k>', '<Up>', {desc = 'Terminal mode -> up arrow'})
 
   -- Paste
   vim.keymap.set('t', '<C-v>',
@@ -358,8 +358,8 @@ function M.set_keybinds()
   vim.keymap.set({'n', 't'}, M.config.leader .. 'q', M.safe_quit, {desc = 'Quit (confirm if multiple terms open)'})
 
   -- Previous/next tab
-  vim.keymap.set({'n', 't'}, '<C-j>', '<CMD>tabprevious<CR>', {desc = 'Previous tab', silent = true})
-  vim.keymap.set({'n', 't'}, '<C-k>', '<CMD>tabnext<CR>', {desc = 'Next tab', silent = true})
+  vim.keymap.set({'n', 't'}, '<C-h>', '<CMD>tabprevious<CR>', {desc = 'Previous tab', silent = true})
+  vim.keymap.set({'n', 't'}, '<C-l>', '<CMD>tabnext<CR>', {desc = 'Next tab', silent = true})
 
   -- Go to tab by index
   for i=1,9 do
