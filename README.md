@@ -56,7 +56,6 @@ optional dependency if using the SSH picker (pick one):
 | `<C-j>`     | Go to previous tab                    |
 | `<C-k>`     | Go to next tab                        |
 | `<C-[1-9]>` | Go to the specified numbered tab      |
-| `<C-TAB>`   | Go to last active tab                 |
 | `<C-S-r>`   | Rename current tab                    |
 | `<C-,>`     | Move current tab to the left          |
 | `<C-.>`     | Move current tab to the right         |

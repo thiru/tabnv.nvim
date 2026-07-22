@@ -5,6 +5,7 @@ local M = {
 }
 
 local u = require('tabnv.utils')
+local ws = require('tabnv.workspace')
 
 --- Setup core aspects of the plugin.
 ---@param config tabnv.Config
@@ -14,6 +15,7 @@ function M.setup(config)
   M.set_keybinds()
   M.create_usercmds()
   M.create_autocmds()
+  ws.setup()
 end
 
 function M.save_original_opts()
@@ -356,22 +358,6 @@ function M.set_keybinds()
 
   -- Safe quit
   vim.keymap.set({'n', 't'}, M.config.leader .. 'q', M.safe_quit, {desc = 'Quit (confirm if multiple terms open)'})
-
-  -- Previous/next tab
-  vim.keymap.set({'n', 't'}, '<C-h>', '<CMD>tabprevious<CR>', {desc = 'Previous tab', silent = true})
-  vim.keymap.set({'n', 't'}, '<C-l>', '<CMD>tabnext<CR>', {desc = 'Next tab', silent = true})
-
-  -- Go to tab by index
-  for i=1,9 do
-    vim.keymap.set(
-      {'i', 'n', 't', 'v'},
-      '<C-' .. i .. '>',
-      function() M.go_to_tab(i) end,
-      {desc = 'Go to tab by index', silent=true})
-  end
-
-  -- Alternate tab
-  vim.keymap.set({'n', 't'}, '<C-TAB>', '<CMD>:tabnext #<CR>', {desc = 'Go to alternate tab', silent = true})
 
   -- Tab close
   vim.keymap.set({'n', 't'}, M.config.leader .. 'd', '<CMD>tabclose<CR>', {desc = 'Close tab'})
