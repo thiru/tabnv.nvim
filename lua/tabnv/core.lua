@@ -285,8 +285,10 @@ end
 
 --- Define key bindings. These are mostly leader-key-based.
 function M.set_keybinds()
+  -- New buffer tab
+  vim.keymap.set({'n', 't'}, M.config.leader .. 'e', '<CMD>tabnew<CR>', {desc = 'New editor (tab)'})
+
   -- New terminal tab
-  vim.keymap.set({'n', 't'}, '<C-T>', M.new_tab, {desc = 'New terminal (tab)'})
   vim.keymap.set({'n', 't'}, M.config.leader .. 't', M.new_tab, {desc = 'New terminal (tab)'})
 
   -- New floating, centred terminal
@@ -296,8 +298,8 @@ function M.set_keybinds()
   vim.keymap.set('t', '<C-space>', '<C-\\><C-n>', {desc = 'Terminal mode -> normal mode'})
 
   -- Up/down
-  vim.keymap.set('t', '<C-j>', '<Down>', {desc = 'Terminal mode -> down arrow'})
-  vim.keymap.set('t', '<C-k>', '<Up>', {desc = 'Terminal mode -> up arrow'})
+  vim.keymap.set({'c', 't'}, '<C-j>', '<Down>', {desc = 'Down arrow'})
+  vim.keymap.set({'c', 't'}, '<C-k>', '<Up>', {desc = 'Up arrow'})
 
   -- Paste
   vim.keymap.set('t', '<C-v>',
@@ -335,14 +337,26 @@ function M.set_keybinds()
     {desc = 'New terminal (horizontal split)'})
 
   -- Rename tab
-  vim.keymap.set({'n', 't'}, '<C-S-r>', M.rename_tab_prompt, {desc = 'Rename tab'})
   vim.keymap.set({'n', 't'}, M.config.leader .. 'r', M.rename_tab_prompt, {desc = 'Rename tab'})
 
   -- SSH picker
   vim.keymap.set({'n', 't'}, M.config.leader .. 's', '<CMD>SshPicker<CR>', {desc = 'Launch [S]SH connection picker'})
 
   -- Window prefix
-  vim.keymap.set({'n', 't'}, M.config.leader .. 'w', M.set_window_prefix_prompt, {desc = 'Set [W]indow Prefix'})
+  vim.keymap.set({'n', 't'}, M.config.leader .. 'p', M.set_window_prefix_prompt, {desc = 'Set Window [P]refix'})
+
+  -- Quit
+  vim.keymap.set(
+    { 'n', 'v' }, '<leader>q',
+    function()
+      if #vim.api.nvim_list_tabpages() <= 1 then
+        vim.cmd.quitall()
+      else
+        vim.cmd.tabclose()
+      end
+    end,
+    { desc = 'Exit/Close Tab' })
+  vim.keymap.set({ 'n', 'v' }, '<leader>Q', '<CMD>qall!<CR>', { desc = 'Exit (ignore unsaved changes/tabs)' })
 end
 
 return M
