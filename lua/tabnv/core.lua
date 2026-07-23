@@ -257,19 +257,8 @@ function M.new_float_term()
     style = 'minimal',
   })
 
-  local prev_bg = vim.opt.background:get()
-  vim.opt.background = 'dark'
   vim.cmd.terminal()
   vim.cmd.startinsert()
-
-  local win_id = vim.api.nvim_get_current_win()
-  vim.api.nvim_create_autocmd('WinClosed', {
-    buffer = vim.api.nvim_win_get_buf(win_id),
-    once = true,
-    callback = function()
-      vim.opt.background = prev_bg
-    end,
-  })
 end
 
 --- Show prompt to rename the current tab.
