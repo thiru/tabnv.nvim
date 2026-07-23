@@ -64,19 +64,6 @@ function M.is_terminal_buf()
   return type(vim.fn.getbufvar(vim.fn.bufnr(), 'terminal_job_id')) == 'number'
 end
 
---- Count the number of terminals currently running.
-function M.num_terms_open()
-  local num_terms = 0
-
-  for _, v in pairs(vim.fn.getbufinfo({buflisted = 1})) do
-    if type(v.variables.terminal_job_id) == 'number' then
-      num_terms = num_terms + 1
-    end
-  end
-
-  return num_terms
-end
-
 --- Update the window title according to an optional user-defined prefix and tab name.
 function M.update_window_title()
   vim.opt.titlestring = (vim.g.tabnv_window_prefix or '') .. M.get_tab_name()

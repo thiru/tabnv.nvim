@@ -283,52 +283,14 @@ function M.set_window_prefix_prompt()
   end
 end
 
---- Safely quit Neovim. I.e. if more than one terminal session is open prompt the user first.
-function M.safe_quit()
-  vim.schedule(function()
-    if u.num_terms_open() > 1 then
-      local choice = vim.fn.confirm('Quit even though terminals are open?', '&Cancel\n&Quit')
-      if choice == 2 then
-        vim.cmd('qall!')
-      end
-    else
-      vim.cmd('qall!')
-    end
-  end)
-end
-
---- Go to the specified tab number
----@param num number
-function M.go_to_tab(num)
-  local tab_handles = vim.api.nvim_list_tabpages()
-  if (num > 0) and (#tab_handles > 1) and (num <= #tab_handles) then
-    vim.api.nvim_set_current_tabpage(tab_handles[num])
-  end
-end
-
---- Move the current tab in the respective direction.
----@param dir number Moves the current tab to the left if negative and to the right if positive.
-function M.move_tab(dir)
-  if dir == 0 then
-    return
-  elseif dir < 0 then
-    vim.cmd('-tabmove')
-  elseif dir > 0 then
-    vim.cmd('+tabmove')
-  end
-
-  vim.cmd('redraw!')
-end
-
 --- Define key bindings. These are mostly leader-key-based.
 function M.set_keybinds()
   -- New terminal tab
-  vim.keymap.set({'n', 'v', 't'}, '<C-T>', M.new_tab, {desc = 'New terminal (tab)'})
-  vim.keymap.set({'n', 'v', 't'}, M.config.leader .. 't', M.new_tab, {desc = 'New terminal (tab)'})
+  vim.keymap.set({'n', 't'}, '<C-T>', M.new_tab, {desc = 'New terminal (tab)'})
+  vim.keymap.set({'n', 't'}, M.config.leader .. 't', M.new_tab, {desc = 'New terminal (tab)'})
 
   -- New floating, centred terminal
-  vim.keymap.set('n', '<leader>f', M.new_float_term, {desc = 'New terminal (float)'})
-  vim.keymap.set({'n', 'v', 't'}, M.config.leader .. 'f', M.new_float_term, {desc = 'New terminal (float)'})
+  vim.keymap.set({'n', 't'}, M.config.leader .. 'f', M.new_float_term, {desc = 'New terminal (float)'})
 
   -- Terminal ESC
   vim.keymap.set('t', '<C-space>', '<C-\\><C-n>', {desc = 'Terminal mode -> normal mode'})
@@ -344,9 +306,6 @@ function M.set_keybinds()
       vim.api.nvim_chan_send(terminal_job_id, vim.fn.getreg('+'))
     end,
     {desc = 'Paste from system clipboard'})
-
-  -- Safe quit
-  vim.keymap.set({'n', 't'}, M.config.leader .. 'q', M.safe_quit, {desc = 'Quit (confirm if multiple terms open)'})
 
   -- Tab close
   vim.keymap.set({'n', 't'}, M.config.leader .. 'd', '<CMD>tabclose<CR>', {desc = 'Close tab'})
@@ -378,10 +337,6 @@ function M.set_keybinds()
   -- Rename tab
   vim.keymap.set({'n', 't'}, '<C-S-r>', M.rename_tab_prompt, {desc = 'Rename tab'})
   vim.keymap.set({'n', 't'}, M.config.leader .. 'r', M.rename_tab_prompt, {desc = 'Rename tab'})
-
-  -- Move tab left/right
-  vim.keymap.set({'n', 't'}, '<C-,>', function() M.move_tab(-1) end, {desc = 'Move tab left'})
-  vim.keymap.set({'n', 't'}, '<C-.>', function() M.move_tab(1) end, {desc = 'Move tab right'})
 
   -- SSH picker
   vim.keymap.set({'n', 't'}, M.config.leader .. 's', '<CMD>SshPicker<CR>', {desc = 'Launch [S]SH connection picker'})
