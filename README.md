@@ -16,15 +16,18 @@ a [neovim](https://neovim.io/) plugin that turns your editor into a terminal mul
 - the default experience of managing terminals and regular buffers in neovim is not ergonomic
 - with [neovide](https://neovide.dev/) we have a fully cross-platform terminal without compromises
 
-## how - installation
+## how
 
-### vim.pack
+### installation
+
+#### vim.pack
 
 ```lua
-vim.pack.add{'https://github.com/thiru/tabnv.nvim'}
+vim.pack.add({'https://github.com/thiru/tabnv.nvim'})
+require('tabnv.nvim').setup()
 ```
 
-### lazy.nvim
+#### lazy.nvim
 
 ```lua
 {
@@ -38,44 +41,53 @@ optional dependency if using the SSH picker (pick one):
 - [telescope](https://github.com/nvim-telescope/telescope.nvim)
 - [fzf-lua](https://github.com/ibhagwan/fzf-lua)
 
-## how - usage
+### usage
 
+- note that the default `leader` key is `<C-t>`
 - start neovim normally
-  - `<C-t>` to get a tab with a terminal
-  - `<C-S-t>` to get a tab with a regular emtpy buffer
+  - `<leader>t` to get a tab with a terminal
+  - `<leader>e` to get a tab with a regular empty buffer
 - start neovim with a terminal
   - `nvim +TabnvStart`
 
-### common key binds
+#### generic key binds (terminal mode)
 
-| Keymap      | Description                           |
-|-------------|---------------------------------------|
-| `<C-space>` | Escape terminal mode (to Normal mode) |
-| `<C-t>`     | New terminal tab                      |
-| `<C-S-t>`   | New tab (non-terminal)                |
-| `<C-j>`     | Go to previous tab                    |
-| `<C-k>`     | Go to next tab                        |
-| `<C-[1-9]>` | Go to the specified numbered tab      |
-| `<C-S-r>`   | Rename current tab                    |
-| `<C-,>`     | Move current tab to the left          |
-| `<C-.>`     | Move current tab to the right         |
-| `<C-v>`     | Paste from system clipboard           |
+| Keymap      | Description                 |
+|-------------|-----------------------------|
+| `<C-space>` | Escape terminal mode        |
+| `<C-v>`     | Paste from system clipboard |
+| `<C-j>`     | Down arrow                  |
+| `<C-k>`     | Up arrow                    |
 
-### leader key binds
+#### tab-related key binds
 
-| Keymap      | Description                                     |
-|-------------|-------------------------------------------------|
-| `<leader>t` | New terminal tab                                |
-| `<leader>f` | New floating, centred terminal                  |
-| `<leader>v` | New terminal (vertical split)                   |
-| `<leader>h` | New terminal (horizontal split)                 |
-| `<leader>r` | Rename current tab                              |
-| `<leader>p` | Paste from system clipboard                     |
-| `<leader>a` | Go to last accessed tab                         |
-| `<leader>s` | Launch SSH connection picker                    |
-| `<leader>d` | Close current tab                               |
-| `<leader>w` | Set a window prefix (shown in the title)        |
-| `<leader>q` | Safe quit (confirms if multiple terminals open) |
+| Keymap      | Description                                      |
+|-------------|--------------------------------------------------|
+| `<leader>e` | New tab (regular buffer)                         |
+| `<leader>t` | New terminal tab                                 |
+| `<leader>v` | New terminal (vertical split)                    |
+| `<leader>h` | New terminal (horizontal split)                  |
+| `<leader>f` | New floating, centred terminal                   |
+| `<leader>r` | Rename current tab                               |
+| `<leader>p` | Set a window prefix (shown in the title)         |
+| `<leader>s` | Launch SSH connection picker                     |
+| `<leader>d` | Close current tab                                |
+| `<leader>q` | Close current tab (or quit if it's the last tab) |
+| `<leader>Q` | Exit (ignore unsaved changes/tabs)               |
+
+#### workspace key binds
+
+| Keymap          | Description                           |
+|-----------------|---------------------------------------|
+| `<C-h>`         | Go to previous tab (within workspace) |
+| `<C-l>`         | Go to next tab (within workspace)     |
+| `<C-S-j>`       | Go to next workspace                  |
+| `<C-S-k>`       | Go to previous workspace              |
+| ``<C-`>``       | Go to last active workspace           |
+| `<C-1>`…`<C-0>` | Go to workspace 1–10                  |
+| `<C-S-h>`       | Move current tab left                 |
+| `<C-S-l>`       | Move current tab right                |
+| `<C-!>`…`<C-)>` | Move current tab to workspace 1–10    |
 
 **auto-start command**
 
@@ -85,7 +97,7 @@ you can specify a command to run when the terminal starts via a global variable:
 nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
 ```
 
-## how - config
+### config
 
 - see [config.lua](./lua/tabnv/config.lua) for the full configuration with defaults
 - below is a summary of the available options
@@ -95,9 +107,12 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
   -- optional colour scheme override (useful if you prefer a different theme for terminals)
   colorscheme = nil,
 
+  -- optional opacity to use for terminal tabs if running within Neovide
+  neovide_opacity = nil,
+
   -- the "leader" key used for many key binds (see keymap tables below)
   -- this avoids conflicts with nested vim instances (similar to tmux's Ctrl-B)
-  leader = '<C-;>',
+  leader = '<C-t>',
 
   -- callback invoked right before a terminal buffer is created
   on_before_term_created = nil,
@@ -132,42 +147,56 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
 }
 ```
 
-## feature summary
+### features
 
-### automatic tab naming
+#### workspaces
+
+- workspaces are a way to group related tabs together, similar to *sessions* in tmux or kitty
+- each workspace has its own set of tabs, and tab navigation (`<C-h>` / `<C-l>`) is scoped to the active workspace
+- a workspace is created automatically when you navigate to an unused workspace index (via `<C-1>`…`<C-0>`)
+- empty workspaces are cleaned up automatically
+
+##### statusline integration
+
+the module exposes two functions for use in your statusline:
+
+- `require('tabnv.workspace').print_workspaces()` – returns a string like `1 2*` (the `*` marks the active workspace)
+- `require('tabnv.workspace').print_tabs()` – returns a string like `2/4` (current tab / total tabs in the active workspace)
+
+#### automatic tab naming
 
 - tabs are automatically named after their current working directory
 - if a terminal's directory changes (via `cd` or OSC 7 escape sequences), the tab name updates accordingly
-- if you manually rename a tab (e.g. via  `<C-S-r>`), the automatic naming is disabled for that tab
+- if you manually rename a tab (e.g. via  `<leader>r`), the automatic naming is disabled for that tab
 and your custom name is preserved.
 
-### window title
+#### window title
 
 - the window/tab title is composed from
-  - an optional window prefix (set via `<leader>w`)
+  - an optional window prefix (set via `<leader>p`)
   - the tab name itself
 
-### floating terminal
+#### floating terminal
 
 - a centred, floating terminal window can be opened with `<leader>f`
 - this is useful for quick commands without leaving your current layout
 
-### osc 7 directory change support
+#### osc 7 directory change support
 
 - handles OSC 7 escape sequences (emitted by modern shells via [`osc7`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/osc7) or similar) to track directory changes inside the terminal
 - the tab name and CWD are updated automatically
 
-### auto-close empty tabs
+#### auto-close empty tabs
 
 - when you exit a shell in a terminal tab (TermLeave), the tab is automatically closed if it's empty
 - if it's the last tab, neovim quits entirely
 
-### tab mode and cursor position preservation
+#### tab mode and cursor position preservation
 
 - saves and restores the mode (terminal Insert or Normal)
 - and cursor position when switching between windows in a tab, so you don't lose your place
 
-### ssh connection picker
+#### ssh connection picker
 
 - the ssh picker parses `~/.ssh/config` and `~/.ssh/known_hosts` and lets you quickly connect to any host
 - it supports **telescope.nvim** and **fzf-lua**
@@ -179,13 +208,13 @@ and your custom name is preserved.
   - **horizontal split** (`<C-s>`)
   - **vertical split** (`<C-v>`)
 
-#### auto-reconnect
+##### auto-reconnect
 
 - when `ssh.auto_reconnect` is enabled (default: `true`)
   - the SSH session is wrapped in a loop
   - and prompts you to press ENTER to reconnect after the session ends
 
-#### password detection & caching
+##### password detection & caching
 
 - when `ssh.password_detection.enabled` is `true` (default)
   - terminal output is monitored for ssh password prompts
