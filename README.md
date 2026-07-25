@@ -43,7 +43,7 @@ optional dependency if using the SSH picker (pick one):
 
 ### usage
 
-- note that the default `leader` key is `<C-t>`
+- note that the default `leader` key is ` t`
 - start neovim normally
   - `<leader>t` to get a tab with a terminal
   - `<leader>e` to get a tab with a regular empty buffer
@@ -63,8 +63,8 @@ optional dependency if using the SSH picker (pick one):
 
 | Keymap      | Description                                      |
 |-------------|--------------------------------------------------|
-| `<leader>e` | New tab (regular buffer)                         |
-| `<leader>t` | New terminal tab                                 |
+| `<C-t>`     | New tab (regular buffer)                         |
+| `<C-;>`     | New terminal tab                                 |
 | `<leader>v` | New terminal (vertical split)                    |
 | `<leader>h` | New terminal (horizontal split)                  |
 | `<leader>f` | New floating, centred terminal                   |

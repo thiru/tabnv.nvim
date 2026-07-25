@@ -16,8 +16,8 @@ function M.setup()
   vim.keymap.set({'n', 't'}, '<C-l>', M.go_to_next_tab, {desc='Go to next tab'})
 
   -- Go to workspace: prev/next
-  vim.keymap.set({'n', 't'}, '<C-S-k>', M.go_to_prev_workspace, {desc='Go to previous workspace'})
-  vim.keymap.set({'n', 't'}, '<C-S-j>', M.go_to_next_workspace, {desc='Go to next workspace'})
+  vim.keymap.set({'n', 't'}, '<C-,>', M.go_to_prev_workspace, {desc='Go to previous workspace'})
+  vim.keymap.set({'n', 't'}, '<C-.>', M.go_to_next_workspace, {desc='Go to next workspace'})
 
   -- Go to workspace: last active
   vim.keymap.set({'n', 't'}, '<C-`>', M.go_to_last_active_workspace, {desc='Go to last active workspace'})

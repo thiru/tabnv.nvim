@@ -17,7 +17,7 @@ local M = {}
 ---@field ssh.picker string Select the picker backend: 'auto' (try telescope first, fallback to fzf-lua), 'telescope', or 'fzf-lua'
 M.config = {
   colorscheme = nil,
-  leader = '<C-t>',
+  leader = ' t',
   neovide_opacity = nil,
   on_before_term_created = nil,
   on_after_term_created = nil,
