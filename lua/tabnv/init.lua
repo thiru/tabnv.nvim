@@ -16,7 +16,7 @@ M.new_float_term = core.new_float_term
 ---
 ---@return tabnv.Config config The effective configuration in use
 function M.setup(config)
-  local merged_config = vim.tbl_deep_extend('force', default_config, config)
+  local merged_config = vim.tbl_deep_extend('force', default_config, (config or {}))
 
   core.setup(merged_config)
   ssh.setup(merged_config)
