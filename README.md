@@ -158,10 +158,12 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
 
 ##### statusline integration
 
-the module exposes two functions for use in your statusline:
+the module exposes a function for use in your statusline:
 
-- `require('tabnv.workspace').print_workspaces()` – returns a string like `1 2*` (the `*` marks the active workspace)
-- `require('tabnv.workspace').print_tabs()` – returns a string like `2/4` (current tab / total tabs in the active workspace)
+- `require('tabnv.workspace').statusline_text()`
+  – returns a string like ` 1 ²2⁴`
+  - this indicates that there are two workspaces
+  - where the second workspace is the active one and has the second of 4 tabs selected
 
 #### automatic tab naming
 

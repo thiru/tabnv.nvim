@@ -6,6 +6,8 @@ local M = {
   }
 }
 
+local u = require('tabnv.utils')
+
 function M.setup()
   M.state.all_workspaces[1] = {id = 1, tabs = {}}
   M.state.active_workspace = M.state.all_workspaces[1]
@@ -77,28 +79,29 @@ function M.setup()
   })
 end
 
-function M.print_workspaces()
+function M.statusline_text()
   local active_workspace_id = M.state.active_workspace.id
   local workspaces = M.state.all_workspaces
   local workspace_ids = vim.tbl_keys(workspaces)
   table.sort(workspace_ids)
 
-  local str = tostring(active_workspace_id)
-
-  if #workspace_ids > 1 then
-    str = table.concat(
-      vim.tbl_map(
-        function(id)
-          return id == active_workspace_id and string.format('%d*', id) or tostring(id)
-        end,
-        workspace_ids),
+  return table.concat(
+    vim.tbl_map(
+      function(id)
+        if id == active_workspace_id then
+          return string.format('%s%d%s',
+          u.to_superscript(M.get_active_tab_idx()),
+          id,
+          u.to_superscript(#M.state.active_workspace.tabs))
+        else
+          return tostring(id)
+        end
+      end,
+      workspace_ids),
       ' ')
-  end
-
-  return str
 end
 
-function M.print_tabs()
+function M.get_active_tab_idx()
   local tabs = M.state.active_workspace.tabs
   local active_tab_idx = 1
   local curr_tab = vim.api.nvim_get_current_tabpage()
@@ -112,9 +115,7 @@ function M.print_tabs()
     end
   end
 
-  return string.format('%d/%d',
-                       active_tab_idx,
-                       #M.state.active_workspace.tabs)
+  return active_tab_idx
 end
 
 function M.add_tab_to_workspace()
