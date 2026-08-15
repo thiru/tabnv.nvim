@@ -169,8 +169,15 @@ function M.create_autocmds()
   -- Close tab if empty, or exit Neovim altogether if this is also the last tab
   vim.api.nvim_create_autocmd('TermLeave', {
     callback = function()
+      local leaving_tab = vim.api.nvim_get_current_tabpage()
       vim.schedule(function()
-        if M.state.is_term_tab and u.is_empty_tab() then
+        -- NOTE: only auto-close if we're still on the tab that was left. The
+        -- scheduled callback may otherwise run after the user has switched to
+        -- another (empty) tab, and we'd close the wrong one.
+        if vim.api.nvim_get_current_tabpage() ~= leaving_tab then
+          return
+        end
+        if M.state.is_term_tab and u.is_empty_tab(leaving_tab) then
           local tabs = vim.api.nvim_list_tabpages()
           if #tabs == 1 then
             vim.cmd.quit()

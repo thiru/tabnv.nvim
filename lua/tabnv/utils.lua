@@ -89,8 +89,9 @@ function M.sort_alpha_before_number(a, b)
 end
 
 --- Get details of valid buffers in the current tab.
-function M.buffer_tabs()
-  local tabnr = vim.api.nvim_get_current_tabpage()
+---@param tab number? A tab page handle (defaults to the current tab)
+function M.buffer_tabs(tab)
+  local tabnr = tab or vim.api.nvim_get_current_tabpage()
   local windows = vim.api.nvim_tabpage_list_wins(tabnr)
   local buffers = {}
 
@@ -117,9 +118,10 @@ function M.buffer_tabs()
   return buffers
 end
 
---- Determine if the current tab is empty.
-function M.is_empty_tab()
-  local buffers = M.buffer_tabs()
+--- Determine if the given tab is empty.
+---@param tab number? A tab page handle (defaults to the current tab)
+function M.is_empty_tab(tab)
+  local buffers = M.buffer_tabs(tab)
 
   if #buffers == 0 then
     return true
