@@ -6,15 +6,26 @@
 
 ## what
 
-a [neovim](https://neovim.io/) plugin that turns your editor into a terminal multiplexer
+a [neovim](https://neovim.io/) plugin that turns your editor into a powerful terminal multiplexer
 
 ## why
 
-- vim motions are the most efficient means of navigating text
-- terminal output is essentially text
-- neovim has a terminal emulator built in
-- the default experience of managing terminals and regular buffers in neovim is not ergonomic
-- with [neovide](https://neovide.dev/) we have a fully cross-platform terminal without compromises
+- I wanted a terminal emulator that had the following features
+- even popular, modern terminals like Alacritty, Ghostty, Kitty and Wezterm are missing (some or all of) these
+
+### goals
+
+- can leverage the full power of vim to navigate terminal output
+- support for buffers, windows, tabs and workspaces
+- works natively on all platforms (linux, mac, windows)
+  - I use [neovide](https://neovide.dev/) for this
+
+### non-goals
+
+- session persistence
+  - e.g. as in gnu screen or tmux
+- blazing speed
+  - neovim's terminal emulator will not compete with displaying output as fast as modern gpu-accelerated terminals
 
 ## how
 
