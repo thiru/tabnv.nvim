@@ -24,7 +24,7 @@ a [neovim](https://neovim.io/) plugin that turns your editor into a terminal mul
 
 ```lua
 vim.pack.add({'https://github.com/thiru/tabnv.nvim'})
-require('tabnv.nvim').setup()
+require('tabnv').setup()
 ```
 
 #### lazy.nvim
@@ -45,8 +45,8 @@ optional dependency if using the SSH picker (pick one):
 
 - note that the default `leader` key is ` t`
 - start neovim normally
-  - `<leader>t` to get a tab with a terminal
-  - `<leader>e` to get a tab with a regular empty buffer
+  - `<C-;>` to get a tab with a terminal
+  - `<C-t>` to get a tab with a regular empty buffer
 - start neovim with a terminal
   - `nvim +TabnvStart`
 
@@ -81,8 +81,8 @@ optional dependency if using the SSH picker (pick one):
 |-----------------|---------------------------------------|
 | `<C-h>`         | Go to previous tab (within workspace) |
 | `<C-l>`         | Go to next tab (within workspace)     |
-| `<C-S-j>`       | Go to next workspace                  |
-| `<C-S-k>`       | Go to previous workspace              |
+| `<C-.>`         | Go to next workspace                  |
+| `<C-,>`         | Go to previous workspace              |
 | ``<C-`>``       | Go to last active workspace           |
 | `<C-1>`…`<C-0>` | Go to workspace 1–10                  |
 | `<C-S-h>`       | Move current tab left                 |
@@ -112,7 +112,7 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
 
   -- the "leader" key used for many key binds (see keymap tables below)
   -- this avoids conflicts with nested vim instances (similar to tmux's Ctrl-B)
-  leader = '<C-t>',
+  leader = ' t',
 
   -- callback invoked right before a terminal buffer is created
   on_before_term_created = nil,
@@ -161,7 +161,7 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
 the module exposes a function for use in your statusline:
 
 - `require('tabnv.workspace').statusline_text()`
-  – returns a string like ` 1 ²2⁴`
+  – returns a string like `1 ²2⁴`
   - this indicates that there are two workspaces
   - where the second workspace is the active one and has the second of 4 tabs selected
 
