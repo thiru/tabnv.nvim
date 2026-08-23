@@ -315,6 +315,7 @@ function M.set_keybinds()
       vim.api.nvim_chan_send(terminal_job_id, vim.fn.getreg('+'))
     end,
     {desc = 'Paste from system clipboard'})
+  vim.keymap.set('t', '<C-S-v>', '<C-\\><C-n>pi', { desc = 'Paste from default register' })
 
   -- Tab close
   vim.keymap.set('n', M.config.leader .. 'd', '<CMD>tabclose<CR>', {desc = 'Close tab'})
