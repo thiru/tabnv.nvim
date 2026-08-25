@@ -56,7 +56,7 @@ optional dependency if using the SSH picker (pick one):
 
 - note that the default `leader` key is `<C-space>`
 - start neovim normally
-  - `<C-;>` to get a tab with a terminal
+  - `<leader>t` to get a tab with a terminal
   - `<C-t>` to get a tab with a regular empty buffer
 - start neovim with a terminal
   - `nvim +TabnvStart`
@@ -66,25 +66,28 @@ optional dependency if using the SSH picker (pick one):
 | Keymap      | Description                 |
 |-------------|-----------------------------|
 | `<C-space>` | Escape terminal mode        |
+| `<C-;>`     | Escape terminal mode        |
 | `<C-v>`     | Paste from system clipboard |
+| `<C-S-v>`   | Paste from default register |
 | `<C-j>`     | Down arrow                  |
 | `<C-k>`     | Up arrow                    |
 
 #### tab-related key binds
 
+- the `leader` key binds below work in both normal and terminal modes
+- in terminal mode, pressing `leader` escapes terminal mode first (so the binds work as-is)
+
 | Keymap      | Description                                      |
 |-------------|--------------------------------------------------|
 | `<C-t>`     | New tab (regular buffer)                         |
-| `<C-;>`     | New terminal tab                                 |
+| `<leader>t` | New terminal tab                                 |
 | `<leader>v` | New terminal (vertical split)                    |
 | `<leader>h` | New terminal (horizontal split)                  |
 | `<leader>f` | New floating, centred terminal                   |
 | `<leader>r` | Rename current tab                               |
 | `<leader>p` | Set a window prefix (shown in the title)         |
 | `<leader>s` | Launch SSH connection picker                     |
-| `<leader>d` | Close current tab                                |
-| `<leader>q` | Close current tab (or quit if it's the last tab) |
-| `<leader>Q` | Exit (ignore unsaved changes/tabs)               |
+| `<leader>d` | Close current tab (or quit if it's the last tab) |
 
 #### workspace key binds
 
@@ -198,6 +201,7 @@ and your custom name is preserved.
 
 - handles OSC 7 escape sequences (emitted by modern shells via [`osc7`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/osc7) or similar) to track directory changes inside the terminal
 - the tab name and CWD are updated automatically
+  - the CWD change is applied tab-locally via `tcd`
 
 #### auto-close empty tabs
 
