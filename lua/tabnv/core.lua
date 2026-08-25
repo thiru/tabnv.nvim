@@ -296,13 +296,16 @@ function M.set_keybinds()
   vim.keymap.set({'n', 't'}, '<C-t>', '<CMD>tabnew<CR>', {desc = 'New editor (tab)'})
 
   -- New terminal tab
-  vim.keymap.set({'n', 't'}, '<C-;>', M.new_tab, {desc = 'New terminal (tab)'})
+  vim.keymap.set({'n', 't'}, M.config.leader .. 't', M.new_tab, {desc = 'New terminal (tab)'})
 
   -- New floating, centred terminal
-  vim.keymap.set('n', M.config.leader .. 'f', M.new_float_term, {desc = 'New terminal (float)'})
+  vim.keymap.set({'n', 't'}, M.config.leader .. 'f', M.new_float_term, {desc = 'New terminal (float)'})
 
   -- Terminal ESC
-  vim.keymap.set('t', '<C-space>', '<C-\\><C-n>', {desc = 'Terminal mode -> normal mode'})
+  vim.keymap.set({'n', 't'}, '<C-;>', '<C-\\><C-n>', {desc = 'Escape terminal mode'})
+
+  -- Terminal ESC + menu
+  vim.keymap.set({'n', 't'}, M.config.leader, '<C-\\><C-n><C-space>', {desc = 'Escape terminal mode'})
 
   -- Up/down
   vim.keymap.set({'c', 't'}, '<C-j>', '<Down>', {desc = 'Down arrow'})
@@ -317,12 +320,9 @@ function M.set_keybinds()
     {desc = 'Paste from system clipboard'})
   vim.keymap.set('t', '<C-S-v>', '<C-\\><C-n>pi', { desc = 'Paste from default register' })
 
-  -- Tab close
-  vim.keymap.set('n', M.config.leader .. 'd', '<CMD>tabclose<CR>', {desc = 'Close tab'})
-
   -- New vertical split terminal
   vim.keymap.set(
-    'n',
+    {'n', 't'},
     M.config.leader .. 'v',
     function()
       vim.cmd.vsplit()
@@ -334,7 +334,7 @@ function M.set_keybinds()
 
   -- New horizontal split terminal
   vim.keymap.set(
-    'n',
+    {'n', 't'},
     M.config.leader .. 'h',
     function()
       vim.cmd.split()
@@ -345,17 +345,17 @@ function M.set_keybinds()
     {desc = 'New terminal (horizontal split)'})
 
   -- Rename tab
-  vim.keymap.set('n', M.config.leader .. 'r', M.rename_tab_prompt, {desc = 'Rename tab'})
+  vim.keymap.set({'n', 't'}, M.config.leader .. 'r', M.rename_tab_prompt, {desc = 'Rename tab'})
 
   -- SSH picker
-  vim.keymap.set('n', M.config.leader .. 's', '<CMD>SshPicker<CR>', {desc = 'Launch [S]SH connection picker'})
+  vim.keymap.set({'n', 't'}, M.config.leader .. 's', '<CMD>SshPicker<CR>', {desc = 'Launch [S]SH connection picker'})
 
   -- Window prefix
-  vim.keymap.set('n', M.config.leader .. 'p', M.set_window_prefix_prompt, {desc = 'Set Window [P]refix'})
+  vim.keymap.set({'n', 't'}, M.config.leader .. 'p', M.set_window_prefix_prompt, {desc = 'Set Window [P]refix'})
 
-  -- Quit
+  -- Close tab
   vim.keymap.set(
-    { 'n', 'v' }, '<leader>q',
+    { 'n', 't' }, M.config.leader .. 'd',
     function()
       if #vim.api.nvim_list_tabpages() <= 1 then
         vim.cmd.quitall()
@@ -363,8 +363,7 @@ function M.set_keybinds()
         vim.cmd.tabclose()
       end
     end,
-    { desc = 'Exit/Close Tab' })
-  vim.keymap.set({ 'n', 'v' }, '<leader>Q', '<CMD>qall!<CR>', { desc = 'Exit (ignore unsaved changes/tabs)' })
+    { desc = 'Close tab (exit if last)' })
 end
 
 return M
