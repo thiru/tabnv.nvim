@@ -80,6 +80,7 @@ optional dependency if using the SSH picker (pick one):
 | Keymap      | Description                                      |
 |-------------|--------------------------------------------------|
 | `<C-t>`     | New tab (regular buffer)                         |
+| `<C-cr>`    | New terminal tab                                 |
 | `<leader>t` | New terminal tab                                 |
 | `<leader>v` | New terminal (vertical split)                    |
 | `<leader>h` | New terminal (horizontal split)                  |

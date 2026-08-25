@@ -296,6 +296,7 @@ function M.set_keybinds()
   vim.keymap.set({'n', 't'}, '<C-t>', '<CMD>tabnew<CR>', {desc = 'New editor (tab)'})
 
   -- New terminal tab
+  vim.keymap.set({'n', 't'}, '<C-cr>', M.new_tab, {desc = 'New terminal (tab)'})
   vim.keymap.set({'n', 't'}, M.config.leader .. 't', M.new_tab, {desc = 'New terminal (tab)'})
 
   -- New floating, centred terminal
