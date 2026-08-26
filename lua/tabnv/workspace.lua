@@ -8,7 +8,7 @@ local M = {
 
 local u = require('tabnv.utils')
 
-function M.setup()
+function M.setup(config)
   M.state.all_workspaces[1] = {id = 1, tabs = {}}
   M.state.active_workspace = M.state.all_workspaces[1]
   M.add_tab_to_workspace()
@@ -16,6 +16,18 @@ function M.setup()
   -- Go to tab: prev/next
   vim.keymap.set({'n', 't'}, '<C-h>', M.go_to_prev_tab, {desc='Go to previous tab'})
   vim.keymap.set({'n', 't'}, '<C-l>', M.go_to_next_tab, {desc='Go to next tab'})
+
+  -- Go to tab: 1 -> 10
+  vim.keymap.set({'n', 't'}, config.leader .. '1', function() M.go_to_tab_by_index(1) end, {desc='Go to tab 1'})
+  vim.keymap.set({'n', 't'}, config.leader .. '2', function() M.go_to_tab_by_index(2) end, {desc='Go to tab 2'})
+  vim.keymap.set({'n', 't'}, config.leader .. '3', function() M.go_to_tab_by_index(3) end, {desc='Go to tab 3'})
+  vim.keymap.set({'n', 't'}, config.leader .. '4', function() M.go_to_tab_by_index(4) end, {desc='Go to tab 4'})
+  vim.keymap.set({'n', 't'}, config.leader .. '5', function() M.go_to_tab_by_index(5) end, {desc='Go to tab 5'})
+  vim.keymap.set({'n', 't'}, config.leader .. '6', function() M.go_to_tab_by_index(6) end, {desc='Go to tab 6'})
+  vim.keymap.set({'n', 't'}, config.leader .. '7', function() M.go_to_tab_by_index(7) end, {desc='Go to tab 7'})
+  vim.keymap.set({'n', 't'}, config.leader .. '8', function() M.go_to_tab_by_index(8) end, {desc='Go to tab 8'})
+  vim.keymap.set({'n', 't'}, config.leader .. '9', function() M.go_to_tab_by_index(9) end, {desc='Go to tab 9'})
+  vim.keymap.set({'n', 't'}, config.leader .. '0', function() M.go_to_tab_by_index(10) end, {desc='Go to tab 10'})
 
   -- Go to workspace: prev/next
   vim.keymap.set({'n', 't'}, '<C-,>', M.go_to_prev_workspace, {desc='Go to previous workspace'})
@@ -286,6 +298,13 @@ function M.get_workspace_target_tab(workspace)
   end
 
   return vim.api.nvim_get_current_tabpage()
+end
+
+function M.go_to_tab_by_index(idx)
+  local tabs = M.state.active_workspace and M.state.active_workspace.tabs or {}
+  if idx >= 1 and idx <= #tabs then
+    vim.api.nvim_set_current_tabpage(tabs[idx])
+  end
 end
 
 function M.go_to_workspace_by_index(idx)

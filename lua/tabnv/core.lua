@@ -15,7 +15,7 @@ function M.setup(config)
   M.set_keybinds()
   M.create_usercmds()
   M.create_autocmds()
-  ws.setup()
+  ws.setup(config)
 end
 
 function M.save_original_opts()
