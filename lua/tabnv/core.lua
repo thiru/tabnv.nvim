@@ -303,7 +303,7 @@ function M.set_keybinds()
   vim.keymap.set({'n', 't'}, M.config.leader .. 'f', M.new_float_term, {desc = 'New terminal (float)'})
 
   -- Terminal ESC
-  vim.keymap.set({'n', 't'}, '<C-;>', '<C-\\><C-n>', {desc = 'Escape terminal mode'})
+  vim.keymap.set({'n', 't'}, '<C-space>', '<C-\\><C-n>', {desc = 'Escape terminal mode'})
 
   -- Terminal ESC + menu
   vim.keymap.set({'n', 't'}, M.config.leader, '<C-\\><C-n><C-space>', {desc = 'Escape terminal mode'})

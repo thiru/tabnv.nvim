@@ -54,9 +54,9 @@ optional dependency if using the SSH picker (pick one):
 
 ### usage
 
-- note that the default `leader` key is `<C-space>`
+- note that the default `leader` key is `<C-;>`
 - start neovim normally
-  - `<leader>t` to get a tab with a terminal
+  - `<C-cr>` to get a tab with a terminal
   - `<C-t>` to get a tab with a regular empty buffer
 - start neovim with a terminal
   - `nvim +TabnvStart`
@@ -66,7 +66,6 @@ optional dependency if using the SSH picker (pick one):
 | Keymap      | Description                 |
 |-------------|-----------------------------|
 | `<C-space>` | Escape terminal mode        |
-| `<C-;>`     | Escape terminal mode        |
 | `<C-v>`     | Paste from system clipboard |
 | `<C-S-v>`   | Paste from default register |
 | `<C-j>`     | Down arrow                  |
@@ -127,7 +126,7 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
 
   -- the "leader" key used for many key binds (see keymap tables below)
   -- this avoids conflicts with nested vim instances (similar to tmux's Ctrl-B)
-  leader = '<C-space>',
+  leader = '<C-;>',
 
   -- callback invoked right before a terminal buffer is created
   on_before_term_created = nil,
