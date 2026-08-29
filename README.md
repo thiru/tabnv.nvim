@@ -63,13 +63,14 @@ optional dependency if using the SSH picker (pick one):
 
 #### generic key binds (terminal mode)
 
-| Keymap      | Description                 |
-|-------------|-----------------------------|
-| `<C-space>` | Escape terminal mode        |
-| `<C-v>`     | Paste from system clipboard |
-| `<C-S-v>`   | Paste from default register |
-| `<C-j>`     | Down arrow                  |
-| `<C-k>`     | Up arrow                    |
+| Keymap          | Description                     |
+|-----------------|---------------------------------|
+| `<C-space>`     | Escape terminal mode            |
+| `<leader>`      | Escape terminal mode + menu     |
+| `<C-v>`         | Paste from system clipboard     |
+| `<C-S-v>`       | Paste from default register     |
+| `<C-j>`         | Down arrow                      |
+| `<C-k>`         | Up arrow                        |
 
 #### tab-related key binds
 
@@ -95,6 +96,7 @@ optional dependency if using the SSH picker (pick one):
 |-----------------|---------------------------------------|
 | `<C-h>`         | Go to previous tab (within workspace) |
 | `<C-l>`         | Go to next tab (within workspace)     |
+| `<leader>1`…`<leader>0` | Go to tab 1–10 (within workspace)      |
 | `<C-.>`         | Go to next workspace                  |
 | `<C-,>`         | Go to previous workspace              |
 | ``<C-`>``       | Go to last active workspace           |
