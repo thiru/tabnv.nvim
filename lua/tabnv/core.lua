@@ -203,10 +203,39 @@ function M.create_autocmds()
     pattern = '*',
   })
 
-  -- Handles OSC 7 dir change requests (taken from vim help)
+  -- Handles OSC escape sequences
   vim.api.nvim_create_autocmd({'TermRequest'}, {
     callback = function(ev)
-      local val, n = string.gsub(ev.data.sequence, '\027]7;file://[^/]*', '')
+      local seq = ev.data.sequence
+
+      -- FinalTerm/FTCS (OSC 133) shell integration markers
+      local marker = seq:match('^\027]133;(%a)')
+      if marker == 'C' then
+        -- Command starting: remember which tab triggered it, so its completion
+        -- can be compared against the tab the user is now in
+        vim.b[ev.buf].tabnv_osc133_start_tab = vim.api.nvim_get_current_tabpage()
+
+        -- The marker may report the command line (percent-encoded) via cmdline_url:
+        -- e.g. \e]133;C;cmdline_url=echo%20hi\a — capture it for the completion notification
+        vim.b[ev.buf].tabnv_osc133_cmdline = nil
+        local encoded = seq:match('cmdline_url=([^;]*)')
+        if encoded then
+          local cmd = vim.uri_decode(encoded):gsub('%s+$', '')
+          if #cmd > 0 then
+            vim.b[ev.buf].tabnv_osc133_cmdline = cmd
+          end
+        end
+        return
+      elseif marker == 'D' then
+        -- Command finished (optionally reporting the exit status)
+        local exit_code = seq:match('^\027]133;D;(-?%d+)$')
+        local cmd = vim.b[ev.buf].tabnv_osc133_cmdline
+        vim.b[ev.buf].tabnv_osc133_cmdline = nil
+        M.handle_process_complete(ev.buf, exit_code and tonumber(exit_code), cmd)
+        return
+      end
+
+      local val, n = string.gsub(seq, '\027]7;file://[^/]*', '')
       if n > 0 then
         -- OSC 7: dir-change
         local dir = val
@@ -224,6 +253,36 @@ function M.create_autocmds()
     end,
     group = vim.api.nvim_create_augroup('tabnv_termrequest', {clear = true})
   })
+end
+
+--- Handle a command having finished in a terminal buffer (via an OSC 133:D sequence).
+--- Only notifies if the user is no longer in the tab the command was started from
+---@param bufnr number The buffer number the command ran in
+---@param exit_code number? The command's exit status, or nil if the shell did not report one
+---@param cmd string? The command that was run, if the shell reported it via cmdline_url
+function M.handle_process_complete(bufnr, exit_code, cmd)
+  local start_tab = vim.b[bufnr].tabnv_osc133_start_tab
+  if start_tab == vim.api.nvim_get_current_tabpage() then
+    return
+  end
+
+  -- The starting tab may have been closed while the command ran
+  local tab = start_tab
+  if not vim.tbl_contains(vim.api.nvim_list_tabpages(), tab) then
+    tab = vim.api.nvim_get_current_tabpage()
+  end
+
+  local level = vim.log.levels.INFO
+  local msg
+  if exit_code == nil then
+    msg = ('[%s] %q finished'):format(u.get_tab_name(tab), cmd)
+  elseif exit_code == 0 then
+    msg = ('[%s] %q finished successfully'):format(u.get_tab_name(tab), cmd)
+  else
+    msg = ('[%s] %q finished (exit code %d)'):format(u.get_tab_name(tab), cmd, exit_code)
+    level = vim.log.levels.WARN
+  end
+  vim.notify(msg, level)
 end
 
 --- Create a new tab with a terminal and enter insert mode.

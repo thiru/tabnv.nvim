@@ -205,6 +205,10 @@ and your custom name is preserved.
 - the tab name and CWD are updated automatically
   - the CWD change is applied tab-locally via `tcd`
 
+#### process completion notification
+
+- when a command finishes in an unfocued terminal tab, notify user (relies on *OSC 133 escape sequence*)
+
 #### auto-close empty tabs
 
 - when you exit a shell in a terminal tab (TermLeave), the tab is automatically closed if it's empty
