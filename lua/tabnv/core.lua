@@ -415,7 +415,7 @@ function M.set_keybinds()
 
   -- Close tab
   vim.keymap.set(
-    { 'n', 't' }, M.config.leader .. 'd',
+    { 'n', 't' }, M.config.leader .. 'q',
     function()
       if #vim.api.nvim_list_tabpages() <= 1 then
         vim.cmd.quitall()
@@ -424,6 +424,17 @@ function M.set_keybinds()
       end
     end,
     { desc = 'Close tab (exit if last)' })
+
+  -- Close tab (ignore unsaved changes)
+  vim.keymap.set('n', M.config.leader .. 'Q',
+    function()
+      if #vim.api.nvim_list_tabpages() <= 1 then
+        vim.cmd('quitall!')
+      else
+        vim.cmd('tabclose!')
+      end
+    end,
+    {desc = 'Close tab (ignore unsaved changes)'})
 end
 
 return M

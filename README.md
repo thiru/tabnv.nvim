@@ -88,7 +88,8 @@ optional dependency if using the SSH picker (pick one):
 | `<leader>r` | Rename current tab                               |
 | `<leader>p` | Set a window prefix (shown in the title)         |
 | `<leader>s` | Launch SSH connection picker                     |
-| `<leader>d` | Close current tab (or quit if it's the last tab) |
+| `<leader>q` | Close current tab (quit if last)                 |
+| `<leader>Q` | Close current tab (quit if last, ignore changes) |
 
 #### workspace key binds
 
