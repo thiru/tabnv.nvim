@@ -125,7 +125,10 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
   colorscheme = nil,
 
   -- optional opacity to use for terminal tabs if running within Neovide
-  neovide_opacity = nil,
+  neovide_term_opacity = nil,
+
+  -- optional opacity to use for non-terminal tabs if running within Neovide
+  neovide_non_term_opacity = nil,
 
   -- the "leader" key used for many key binds (see keymap tables below)
   -- this avoids conflicts with nested vim instances (similar to tmux's Ctrl-B)

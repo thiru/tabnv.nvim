@@ -22,7 +22,6 @@ function M.save_original_opts()
   M.state.original_opts = {
     background = vim.opt.background:get(),
     cursorline = vim.opt.cursorline:get(),
-    neovide_opacity = vim.g.neovide_opacity,
     number = vim.opt.number:get(),
     relativenumber = vim.opt.relativenumber:get(),
     scrolloff = vim.opt.scrolloff:get(),
@@ -110,16 +109,17 @@ function M.create_autocmds()
       u.update_window_title()
 
       vim.schedule(function ()
+        -- Terminal Tab
         if u.is_terminal_buf() then
           local ok, tabdir = pcall(vim.api.nvim_tabpage_get_var, 0, 'tabdir')
           if ok then
             vim.fn.chdir(tabdir)
           end
 
-          if M.config.neovide_opacity
+          if M.config.neovide_term_opacity
               and vim.g.neovide
-              and vim.g.neovide_opacity ~= M.config.neovide_opacity then
-            vim.g.neovide_opacity = M.config.neovide_opacity
+              and vim.g.neovide_opacity ~= M.config.neovide_term_opacity then
+            vim.g.neovide_opacity = M.config.neovide_term_opacity
           end
 
           if M.config.on_tab_changed then
@@ -128,11 +128,12 @@ function M.create_autocmds()
           if not M.state.is_term_tab then
             M.set_term_opts()
           end
+        -- Non-Terminal Tab
         else
-          if M.config.neovide_opacity
+          if M.config.neovide_non_term_opacity
               and vim.g.neovide
-              and vim.g.neovide_opacity ~= M.state.original_opts.neovide_opacity then
-            vim.g.neovide_opacity = M.state.original_opts.neovide_opacity
+              and vim.g.neovide_opacity ~= M.config.neovide_non_term_opacity then
+            vim.g.neovide_opacity = M.config.neovide_non_term_opacity
           end
 
           if M.config.on_tab_changed then
