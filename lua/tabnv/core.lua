@@ -40,6 +40,10 @@ function M.set_term_opts()
   vim.opt.signcolumn = 'no'
   vim.opt.title = true
 
+  if M.config.neovide_term_opacity and vim.g.neovide then
+    vim.g.neovide_opacity = M.config.neovide_term_opacity
+  end
+
   M.state.is_term_tab = true
 end
 
@@ -52,6 +56,10 @@ function M.unset_term_opts()
   vim.opt.relativenumber = M.state.original_opts.relativenumber
   vim.opt.signcolumn = M.state.original_opts.signcolumn
   vim.opt.title = M.state.original_opts.title
+
+  if M.config.neovide_non_term_opacity and vim.g.neovide then
+    vim.g.neovide_opacity = M.config.neovide_non_term_opacity
+  end
 
   M.state.is_term_tab = false
 end
@@ -107,12 +115,6 @@ function M.create_autocmds()
             vim.fn.chdir(tabdir)
           end
 
-          if M.config.neovide_term_opacity
-              and vim.g.neovide
-              and vim.g.neovide_opacity ~= M.config.neovide_term_opacity then
-            vim.g.neovide_opacity = M.config.neovide_term_opacity
-          end
-
           if M.config.on_tab_changed then
             M.config.on_tab_changed(true)
           end
@@ -121,12 +123,6 @@ function M.create_autocmds()
           end
         -- Non-Terminal Tab
         else
-          if M.config.neovide_non_term_opacity
-              and vim.g.neovide
-              and vim.g.neovide_opacity ~= M.config.neovide_non_term_opacity then
-            vim.g.neovide_opacity = M.config.neovide_non_term_opacity
-          end
-
           if M.config.on_tab_changed then
             M.config.on_tab_changed(false)
           end
