@@ -3,7 +3,6 @@
 local M = {}
 
 ---@class tabnv.Config
----@field colorscheme string? Optional colour scheme override. I find this useful as I prefer a light theme while editing and a dark theme for terminals.
 ---@field leader string? A leader key is used for many key binds to avoid conflicting with nested vim instances. Tmux uses a similar approach with its default being CTRL-B.
 ---@field neovide_term_opacity number? Optional opacity to use for terminal tabs if running within Neovide.
 ---@field neovide_non_term_opacity number? Optional opacity to use for non-terminal tabs if running within Neovide.
@@ -17,7 +16,6 @@ local M = {}
 ---@field ssh.password_detection.patterns string[]? Lua patterns used to detect an SSH authentication request
 ---@field ssh.picker string? Select the picker backend: 'auto' (try telescope first, fallback to fzf-lua), 'telescope', or 'fzf-lua'
 M.config = {
-  colorscheme = nil,
   leader = '<C-;>',
   neovide_term_opacity = nil,
   neovide_non_term_opacity = nil,

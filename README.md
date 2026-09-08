@@ -121,9 +121,6 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
 
 ```lua
 {
-  -- optional colour scheme override (useful if you prefer a different theme for terminals)
-  colorscheme = nil,
-
   -- optional opacity to use for terminal tabs if running within Neovide
   neovide_term_opacity = nil,
 

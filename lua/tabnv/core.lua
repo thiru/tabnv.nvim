@@ -40,11 +40,6 @@ function M.set_term_opts()
   vim.opt.signcolumn = 'no'
   vim.opt.title = true
 
-  if M.config.colorscheme and (vim.g.colors_name ~= M.config.colorscheme) then
-    M.state.original_opts.colors_name = vim.g.colors_name
-    vim.cmd.colorscheme(M.config.colorscheme)
-  end
-
   M.state.is_term_tab = true
 end
 
@@ -57,10 +52,6 @@ function M.unset_term_opts()
   vim.opt.relativenumber = M.state.original_opts.relativenumber
   vim.opt.signcolumn = M.state.original_opts.signcolumn
   vim.opt.title = M.state.original_opts.title
-
-  if M.state.original_opts.colors_name then
-    vim.cmd.colorscheme(M.state.original_opts.colors_name)
-  end
 
   M.state.is_term_tab = false
 end
