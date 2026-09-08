@@ -1,12 +1,13 @@
+local u = require('tabnv.utils')
+
 local M = {
   state = {
     all_workspaces = {},
     active_workspace = nil,
     previous_workspace = nil,
+    cached_statusline_text = '',
   }
 }
-
-local u = require('tabnv.utils')
 
 function M.setup(config)
   M.state.all_workspaces[1] = {id = 1, tabs = {}}
@@ -67,6 +68,7 @@ function M.setup(config)
   vim.api.nvim_create_autocmd('TabNew', {
     callback = function()
       M.add_tab_to_workspace()
+      M.recompute_statusline_text()
     end,
     group = vim.api.nvim_create_augroup('tabnv_workspace_tabnew', {clear = true}),
     pattern = '*',
@@ -77,6 +79,7 @@ function M.setup(config)
       if M.state.active_workspace then
         M.state.active_workspace.last_active_tab = vim.api.nvim_get_current_tabpage()
       end
+      M.recompute_statusline_text()
     end,
     group = vim.api.nvim_create_augroup('tabnv_workspace_tabenter', {clear = true}),
     pattern = '*',
@@ -91,9 +94,15 @@ function M.setup(config)
   })
 end
 
+--- Get (cached) statusline text.
 function M.statusline_text()
+  return M.state.cached_statusline_text
+end
+
+function M.recompute_statusline_text()
   if not M.state.active_workspace then
-    return ''
+    M.state.cached_statusline_text = ''
+    return
   end
 
   local active_workspace_id = M.state.active_workspace.id
@@ -101,7 +110,7 @@ function M.statusline_text()
   local workspace_ids = vim.tbl_keys(workspaces)
   table.sort(workspace_ids)
 
-  return table.concat(
+  M.state.cached_statusline_text = table.concat(
     vim.tbl_map(
       function(id)
         if id == active_workspace_id then
@@ -179,6 +188,7 @@ function M.remove_tab_from_workspace()
         ws.last_active_tab = nil
       end
     end
+    M.recompute_statusline_text()
     return
   end
 
@@ -192,6 +202,7 @@ function M.remove_tab_from_workspace()
     table.sort(workspace_ids)
 
     if #workspace_ids == 1 then
+      M.recompute_statusline_text()
       return
     end
 
@@ -220,6 +231,7 @@ function M.remove_tab_from_workspace()
 
       M.state.active_workspace = new_workspace
       vim.api.nvim_set_current_tabpage(M.get_workspace_target_tab(new_workspace))
+      M.recompute_statusline_text()
     end)
   else
     for i = 1, #tabs do
@@ -228,6 +240,7 @@ function M.remove_tab_from_workspace()
         break
       end
     end
+    M.recompute_statusline_text()
   end
 end
 
@@ -449,7 +462,7 @@ function M.move_tab_to_workspace(target_ws_idx)
 
   M.state.active_workspace = target_ws
 
-  vim.api.nvim_cmd({cmd='redrawstatus'}, {})
+  M.recompute_statusline_text()
 end
 
 function M.move_tab_left()
@@ -469,7 +482,7 @@ function M.move_tab_left()
       break
     end
   end
-  vim.api.nvim_cmd({cmd='redrawstatus'}, {})
+  M.recompute_statusline_text()
 end
 
 function M.move_tab_right()
@@ -489,7 +502,7 @@ function M.move_tab_right()
       break
     end
   end
-  vim.api.nvim_cmd({cmd='redrawstatus'}, {})
+  M.recompute_statusline_text()
 end
 
 return M
