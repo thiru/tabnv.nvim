@@ -485,7 +485,6 @@ function M.move_tab_to_workspace(target_ws_idx)
   local workspace_to_save = M.state.active_workspace
 
   local curr_tab = vim.api.nvim_get_current_tabpage()
-  local curr_tabs = workspace_to_save.tabs
 
   -- The tab is moving to the target workspace, so it must be tracked by no
   -- other workspace. This also heals duplicate trackings from earlier state
@@ -496,7 +495,7 @@ function M.move_tab_to_workspace(target_ws_idx)
   local curr_id = workspace_to_save.id
 
   -- if current workspace is now empty, remove the entire workspace
-  if #curr_tabs == 0 then
+  if #workspace_to_save.tabs == 0 then
     workspaces[curr_id] = nil
   end
 
