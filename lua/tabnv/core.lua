@@ -249,25 +249,41 @@ end
 ---@param exit_code number? The command's exit status, or nil if the shell did not report one
 ---@param cmd string? The command that was run, if the shell reported it via cmdline_url
 function M.handle_process_complete(bufnr, exit_code, cmd)
-  local start_tab = vim.b[bufnr].tabnv_osc133_start_tab
-  if start_tab == vim.api.nvim_get_current_tabpage() then
+  if not vim.api.nvim_buf_is_valid(bufnr) then
     return
   end
 
-  -- The starting tab may have been closed while the command ran
-  local tab = start_tab
-  if not vim.tbl_contains(vim.api.nvim_list_tabpages(), tab) then
-    tab = vim.api.nvim_get_current_tabpage()
+  local start_tab = vim.b[bufnr].tabnv_osc133_start_tab
+
+  -- Ensure we're looking at the same command/tab
+  local start_tab_ok = false
+  if start_tab and vim.api.nvim_tabpage_is_valid(start_tab) then
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(start_tab)) do
+      if vim.api.nvim_win_get_buf(win) == bufnr then
+        start_tab_ok = true
+        break
+      end
+    end
+  end
+
+  -- Don't show a message if start tab no longer exists
+  if not start_tab_ok then
+    return
+  end
+
+  -- Don't show a message if user is already viewing the start tab
+  if start_tab == vim.api.nvim_get_current_tabpage() then
+    return
   end
 
   local level = vim.log.levels.INFO
   local msg
   if exit_code == nil then
-    msg = ('[%s] %q finished'):format(u.get_tab_name(tab), cmd)
+    msg = ('[%s] %q finished'):format(u.get_tab_name(start_tab), cmd)
   elseif exit_code == 0 then
-    msg = ('[%s] %q finished successfully'):format(u.get_tab_name(tab), cmd)
+    msg = ('[%s] %q finished successfully'):format(u.get_tab_name(start_tab), cmd)
   else
-    msg = ('[%s] %q finished (exit code %d)'):format(u.get_tab_name(tab), cmd, exit_code)
+    msg = ('[%s] %q finished (exit code %d)'):format(u.get_tab_name(start_tab), cmd, exit_code)
     level = vim.log.levels.WARN
   end
   vim.notify(msg, level)
