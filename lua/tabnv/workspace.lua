@@ -167,6 +167,26 @@ function M.get_active_tab_idx()
   return active_tab_idx
 end
 
+--- Remove the given tab from every workspace's tab list and clear any
+--- references to it. A tab is only ever tracked by exactly one workspace.
+---@param tab number A tab page handle
+function M.untrack_tab(tab)
+  for _, ws in pairs(M.state.all_workspaces) do
+    if type(ws.tabs) == 'table' then
+      local cleaned = {}
+      for _, tracked in ipairs(ws.tabs) do
+        if tracked ~= tab then
+          table.insert(cleaned, tracked)
+        end
+      end
+      ws.tabs = cleaned
+    end
+    if ws.last_active_tab == tab then
+      ws.last_active_tab = nil
+    end
+  end
+end
+
 --- Find the workspace that tracks the given tab page.
 --- Prefers the active workspace when it already tracks the tab.
 ---@param tab number A tab page handle
@@ -199,10 +219,18 @@ end
 
 function M.add_tab_to_workspace()
   local new_tab = vim.api.nvim_get_current_tabpage()
-  local tabs = M.state.active_workspace.tabs
+  local workspace = M.state.active_workspace
+  if not workspace then
+    return
+  end
+
+  -- The new tab must not already be tracked by another workspace
+  M.untrack_tab(new_tab)
+
+  local tabs = workspace.tabs
   local insert_pos = #tabs + 1
 
-  local last_active_tab = M.state.active_workspace.last_active_tab
+  local last_active_tab = workspace.last_active_tab
   if last_active_tab then
     for i = 1, #tabs do
       if tabs[i] == last_active_tab then
@@ -220,11 +248,11 @@ function M.remove_tab_from_workspace()
   local workspaces = M.state.all_workspaces
 
   -- NOTE: don't assume the tab being closed belongs to the active workspace.
-  -- The state can get out of sync in some edge cases, so locate the workspace
-  -- that actually tracks this tab.
+  -- The state can drift in some edge cases, so locate the workspace that
+  -- actually tracks this tab.
   local containing_ws
   for _, ws in pairs(workspaces) do
-    for _, tab in ipairs(ws.tabs) do
+    for _, tab in ipairs(ws.tabs or {}) do
       if tab == curr_tab then
         containing_ws = ws
         break
@@ -235,67 +263,56 @@ function M.remove_tab_from_workspace()
     end
   end
 
-  -- If the tab isn't tracked, clean up any stale references and bail.
+  -- Remove the closing tab from every workspace's list and clear references
+  -- to it, so duplicate trackings and stale last_active_tab pointers left
+  -- over from earlier state drift don't survive the close.
+  M.untrack_tab(curr_tab)
+
   if not containing_ws then
-    for _, ws in pairs(workspaces) do
-      if ws.last_active_tab == curr_tab then
-        ws.last_active_tab = nil
-      end
-    end
     M.recompute_statusline_text()
     return
   end
 
-  M.state.active_workspace = containing_ws
+  -- NOTE: don't re-assign `active_workspace` to the workspace that owned the
+  -- closed tab. The closed tab may not belong to the active workspace (e.g.
+  -- the user closed a tab of a workspace reached without the plugin's
+  -- keymaps), so forcing it here would desync state from the tab actually on
+  -- display. Attribution to the tab the user ends up on is handled by the
+  -- TabEnter autocommand instead.
+
   local tabs = containing_ws.tabs
   local curr_workspace_id = containing_ws.id
 
-  -- when there's only 1 tab we need to delete this workspace and select the previous one
-  if #tabs == 1 then
+  -- When the last tab of a workspace is closed, delete the (now empty) workspace.
+  if #tabs == 0 then
     local workspace_ids = vim.tbl_keys(workspaces)
     table.sort(workspace_ids)
 
-    if #workspace_ids == 1 then
+    -- Always keep at least one workspace around.
+    if #workspace_ids <= 1 then
       M.recompute_statusline_text()
       return
     end
 
-    table.remove(tabs, 1)
+    workspaces[curr_workspace_id] = nil
 
-    vim.schedule(function()
-      local prev_workspace = M.state.previous_workspace
-
-      workspaces[curr_workspace_id] = nil
-
-      local prev_idx = #workspace_ids
+    -- Don't keep `previous_workspace` pointing at the workspace that was just
+    -- removed.
+    local prev_workspace = M.state.previous_workspace
+    if prev_workspace == nil or prev_workspace.id == curr_workspace_id then
+      workspace_ids = vim.tbl_keys(workspaces)
+      table.sort(workspace_ids)
+      M.state.previous_workspace = workspaces[workspace_ids[#workspace_ids]]
       for j = #workspace_ids, 1, -1 do
         if workspace_ids[j] < curr_workspace_id then
-          prev_idx = j
+          M.state.previous_workspace = workspaces[workspace_ids[j]]
           break
         end
       end
-
-      local new_key = workspace_ids[prev_idx]
-      local new_workspace = workspaces[new_key]
-
-      -- Don't keep a reference to the workspace that was just removed
-      if prev_workspace == nil or prev_workspace.id == curr_workspace_id then
-        M.state.previous_workspace = new_workspace
-      end
-
-      M.state.active_workspace = new_workspace
-      vim.api.nvim_set_current_tabpage(M.get_workspace_target_tab(new_workspace))
-      M.recompute_statusline_text()
-    end)
-  else
-    for i = 1, #tabs do
-      if tabs[i] == curr_tab then
-        table.remove(tabs, i)
-        break
-      end
     end
-    M.recompute_statusline_text()
   end
+
+  M.recompute_statusline_text()
 end
 
 function M.go_to_prev_tab()
@@ -471,13 +488,10 @@ function M.move_tab_to_workspace(target_ws_idx)
   local curr_tab = vim.api.nvim_get_current_tabpage()
   local curr_tabs = workspace_to_save.tabs
 
-  -- remove tab from the current workspace
-  for i = 1, #curr_tabs do
-    if curr_tabs[i] == curr_tab then
-      table.remove(curr_tabs, i)
-      break
-    end
-  end
+  -- The tab is moving to the target workspace, so it must be tracked by no
+  -- other workspace. This also heals duplicate trackings from earlier state
+  -- drift.
+  M.untrack_tab(curr_tab)
 
   local workspaces = M.state.all_workspaces
   local curr_id = workspace_to_save.id
@@ -496,7 +510,7 @@ function M.move_tab_to_workspace(target_ws_idx)
   local target_ws = workspaces[target_ws_idx]
   local insert_pos = #target_ws.tabs + 1
   local last_active_tab = target_ws.last_active_tab
-  if last_active_tab then
+  if last_active_tab and vim.api.nvim_tabpage_is_valid(last_active_tab) then
     for i = 1, #target_ws.tabs do
       if target_ws.tabs[i] == last_active_tab then
         insert_pos = i + 1
