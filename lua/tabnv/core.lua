@@ -112,7 +112,7 @@ function M.create_autocmds()
         if u.is_terminal_buf() then
           local ok, tabdir = pcall(vim.api.nvim_tabpage_get_var, 0, 'tabdir')
           if ok then
-            vim.fn.chdir(tabdir)
+            vim.cmd.tcd(tabdir)
           end
 
           if M.config.on_tab_changed then
