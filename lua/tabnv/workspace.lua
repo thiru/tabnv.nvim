@@ -76,9 +76,33 @@ function M.setup(config)
 
   vim.api.nvim_create_autocmd('TabEnter', {
     callback = function()
-      if M.state.active_workspace then
-        M.state.active_workspace.last_active_tab = vim.api.nvim_get_current_tabpage()
+      local curr_tab = vim.api.nvim_get_current_tabpage()
+
+      -- Reconcile the active workspace with the tab actually displayed. The
+      -- user may have switched tabs without using the plugin's keymaps
+      -- (e.g. `gt`, `:tabnext`, mouse clicks), which would otherwise leave
+      -- the workspace state pointing at an unrelated workspace while the
+      -- current tab belongs to another one.
+      local containing = M.get_workspace_containing_tab(curr_tab)
+      if containing and containing ~= M.state.active_workspace then
+        local prev = M.state.active_workspace
+        -- Only remember the workspace we're leaving if it still exists, so we
+        -- don't record a workspace that was just emptied and removed.
+        if prev and M.state.all_workspaces[prev.id] == prev then
+          M.state.previous_workspace = prev
+        end
+        M.state.active_workspace = containing
+      elseif not containing and M.state.active_workspace then
+        -- A tab that isn't tracked anywhere (e.g. TabNew autocmds were
+        -- disabled): attribute it to the active workspace so navigation
+        -- within the workspace keeps working.
+        table.insert(M.state.active_workspace.tabs, curr_tab)
       end
+
+      if M.state.active_workspace then
+        M.state.active_workspace.last_active_tab = curr_tab
+      end
+
       M.recompute_statusline_text()
     end,
     group = vim.api.nvim_create_augroup('tabnv_workspace_tabenter', {clear = true}),
@@ -141,6 +165,36 @@ function M.get_active_tab_idx()
   end
 
   return active_tab_idx
+end
+
+--- Find the workspace that tracks the given tab page.
+--- Prefers the active workspace when it already tracks the tab.
+---@param tab number A tab page handle
+---@return table? workspace The workspace tracking `tab`, or nil
+function M.get_workspace_containing_tab(tab)
+  local workspaces = M.state.all_workspaces
+
+  if M.state.active_workspace then
+    local active_tabs = M.state.active_workspace.tabs or {}
+    for _, tracked in ipairs(active_tabs) do
+      if tracked == tab then
+        return M.state.active_workspace
+      end
+    end
+  end
+
+  local workspace_ids = vim.tbl_keys(workspaces)
+  table.sort(workspace_ids)
+
+  for _, id in ipairs(workspace_ids) do
+    for _, tracked in ipairs(workspaces[id].tabs or {}) do
+      if tracked == tab then
+        return workspaces[id]
+      end
+    end
+  end
+
+  return nil
 end
 
 function M.add_tab_to_workspace()
