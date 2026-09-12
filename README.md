@@ -208,7 +208,7 @@ and your custom name is preserved.
 
 #### process completion notification
 
-- when a command finishes in an unfocued terminal tab, notify user (relies on *OSC 133 escape sequence*)
+- when a command finishes in an unfocused terminal tab, notify user (relies on *OSC 133 escape sequence*)
 
 #### auto-close empty tabs
 
