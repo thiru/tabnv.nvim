@@ -152,19 +152,18 @@ end
 
 function M.get_active_tab_idx()
   local tabs = M.state.active_workspace and M.state.active_workspace.tabs or {}
-  local active_tab_idx = 1
   local curr_tab = vim.api.nvim_get_current_tabpage()
 
-  if #tabs > 1 then
-    for i = 2, #tabs do
-      if tabs[i] == curr_tab then
-        active_tab_idx = i
-        break
-      end
+  for i = 1, #tabs do
+    if tabs[i] == curr_tab then
+      return i
     end
   end
 
-  return active_tab_idx
+  -- The tab currently displayed is not part of the active workspace's list
+  -- (e.g. a stale workspace hasn't been reconciled yet). Return 0 so the
+  -- statusline doesn't misrepresent the position.
+  return 0
 end
 
 --- Remove the given tab from every workspace's tab list and clear any
