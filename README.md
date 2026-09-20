@@ -173,14 +173,17 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
 - a workspace is created automatically when you navigate to an unused workspace index (via `<C-1>`…`<C-0>`)
 - empty workspaces are cleaned up automatically
 
-##### statusline integration
+##### tabline integration
 
-the module exposes a function for use in your statusline:
+the module exposes functions for use in your tabline:
 
-- `require('tabnv.workspace').statusline_text()`
-  – returns a string like `1 ²2⁴`
-  - this indicates that there are two workspaces
-  - where the second workspace is the active one and has the second of 4 tabs selected
+- `require('tabnv.workspace').tabline_workspaces()`
+  – returns statusline-formatted workspace labels like `1 2`, indicating that
+  there are two workspaces; the active workspace is highlighted with
+  `TabnvWorkspaceActive` (linked to `IncSearch` by default)
+- `require('tabnv.workspace').tabline_tabs()`
+  – returns statusline-formatted text for the tabs in the active workspace
+  - the active tab is highlighted with `TabLineSel`
 
 #### automatic tab naming
 

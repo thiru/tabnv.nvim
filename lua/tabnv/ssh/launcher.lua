@@ -4,6 +4,7 @@ local M = {}
 
 local picker = require('tabnv.ssh.picker')
 local u = require('tabnv.utils')
+local ws = require('tabnv.workspace')
 
 --- On SSH authentication requests, at most this many lines will be inspected. This is an optimisation attempt in order to reduce unnecessary processing after a login has succeeded.
 ---@type number
@@ -153,6 +154,7 @@ M.open_ssh_terminal = function(target)
 
   if (M.config.auto_rename_tab) then
     u.set_tab_name(host)
+    ws.recompute_tabline_tabs()
     u.update_window_title()
   end
 

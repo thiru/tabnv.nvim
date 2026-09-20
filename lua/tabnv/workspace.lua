@@ -5,7 +5,8 @@ local M = {
     all_workspaces = {},
     active_workspace = nil,
     previous_workspace = nil,
-    cached_statusline_text = '',
+    cached_tabline_workspaces = '',
+    cached_tabline_tabs = '',
   }
 }
 
@@ -13,6 +14,7 @@ function M.setup(config)
   M.state.all_workspaces[1] = {id = 1, tabs = {}}
   M.state.active_workspace = M.state.all_workspaces[1]
   M.add_tab_to_workspace()
+  M.recompute_tabline_workspaces()
 
   -- Go to tab: prev/next
   vim.keymap.set({'n', 't'}, '<C-h>', M.go_to_prev_tab, {desc='Go to previous tab'})
@@ -68,7 +70,7 @@ function M.setup(config)
   vim.api.nvim_create_autocmd('TabNew', {
     callback = function()
       M.add_tab_to_workspace()
-      M.recompute_statusline_text()
+      M.recompute_tabline_workspaces()
     end,
     group = vim.api.nvim_create_augroup('tabnv_workspace_tabnew', {clear = true}),
     pattern = '*',
@@ -103,7 +105,7 @@ function M.setup(config)
         M.state.active_workspace.last_active_tab = curr_tab
       end
 
-      M.recompute_statusline_text()
+      M.recompute_tabline_workspaces()
     end,
     group = vim.api.nvim_create_augroup('tabnv_workspace_tabenter', {clear = true}),
     pattern = '*',
@@ -118,36 +120,68 @@ function M.setup(config)
   })
 end
 
---- Get (cached) statusline text.
-function M.statusline_text()
-  return M.state.cached_statusline_text
+--- Get (cached) workspace labels for the tabline.
+function M.tabline_workspaces()
+  return M.state.cached_tabline_workspaces
 end
 
-function M.recompute_statusline_text()
+--- Get (cached) tab labels for the active workspace.
+function M.tabline_tabs()
+  return M.state.cached_tabline_tabs
+end
+
+--- Recompute the cached tab labels for the active workspace.
+function M.recompute_tabline_tabs()
+  local workspace = M.state.active_workspace
+  if not workspace then
+    M.state.cached_tabline_tabs = ''
+    return M.state.cached_tabline_tabs
+  end
+
+  local current_tab = vim.api.nvim_get_current_tabpage()
+  local tabs = {}
+
+  for index, tab in ipairs(workspace.tabs or {}) do
+    if vim.api.nvim_tabpage_is_valid(tab) then
+      local ok, name = pcall(u.get_tab_name, tab)
+      if ok and name then
+        local highlight = tab == current_tab and '%#TabLineSel#' or '%#TabLine#'
+        local display_name = name == '[No Name]' and '' or name
+        if display_name == '' then
+          display_name = u.replace_home_with_tilde(
+            vim.fn.getcwd(-1, vim.api.nvim_tabpage_get_number(tab)))
+        end
+        local label = string.format(
+          '%s %s %s%%*',
+          highlight,
+          u.to_superscript(index),
+          display_name:gsub('%%', '%%%%'))
+        table.insert(tabs, label)
+      end
+    end
+  end
+
+  M.state.cached_tabline_tabs = table.concat(tabs)
+  return M.state.cached_tabline_tabs
+end
+
+function M.recompute_tabline_workspaces()
   if not M.state.active_workspace then
-    M.state.cached_statusline_text = ''
+    M.state.cached_tabline_workspaces = ''
+    M.recompute_tabline_tabs()
     return
   end
 
-  local active_workspace_id = M.state.active_workspace.id
   local workspaces = M.state.all_workspaces
   local workspace_ids = vim.tbl_keys(workspaces)
   table.sort(workspace_ids)
 
-  M.state.cached_statusline_text = table.concat(
-    vim.tbl_map(
-      function(id)
-        if id == active_workspace_id then
-          return string.format('%s%d%s',
-          u.to_superscript(M.get_active_tab_idx()),
-          id,
-          u.to_superscript(#M.state.active_workspace.tabs))
-        else
-          return tostring(id)
-        end
-      end,
-      workspace_ids),
-      ' ')
+  M.state.cached_tabline_workspaces = table.concat(
+    vim.tbl_map(function(id)
+      local highlight = id == M.state.active_workspace.id and '%#TabLineSel#' or '%#TabLine#'
+      return string.format('%s %s %%*', highlight, id)
+    end, workspace_ids))
+  M.recompute_tabline_tabs()
 end
 
 function M.get_active_tab_idx()
@@ -268,7 +302,7 @@ function M.remove_tab_from_workspace()
   M.untrack_tab(curr_tab)
 
   if not containing_ws then
-    M.recompute_statusline_text()
+    M.recompute_tabline_workspaces()
     return
   end
 
@@ -289,7 +323,7 @@ function M.remove_tab_from_workspace()
 
     -- Always keep at least one workspace around.
     if #workspace_ids <= 1 then
-      M.recompute_statusline_text()
+      M.recompute_tabline_workspaces()
       return
     end
 
@@ -311,7 +345,7 @@ function M.remove_tab_from_workspace()
     end
   end
 
-  M.recompute_statusline_text()
+  M.recompute_tabline_workspaces()
 end
 
 function M.go_to_prev_tab()
@@ -528,7 +562,7 @@ function M.move_tab_to_workspace(target_ws_idx)
 
   M.state.active_workspace = target_ws
 
-  M.recompute_statusline_text()
+  M.recompute_tabline_workspaces()
 end
 
 function M.move_tab_left()
@@ -548,7 +582,7 @@ function M.move_tab_left()
       break
     end
   end
-  M.recompute_statusline_text()
+  M.recompute_tabline_workspaces()
 end
 
 function M.move_tab_right()
@@ -568,7 +602,7 @@ function M.move_tab_right()
       break
     end
   end
-  M.recompute_statusline_text()
+  M.recompute_tabline_workspaces()
 end
 
 return M
