@@ -203,7 +203,8 @@ function M.create_autocmds()
       if marker == 'C' then
         -- Command starting: remember which tab triggered it, so its completion
         -- can be compared against the tab the user is now in
-        vim.b[ev.buf].tabnv_osc133_start_tab = vim.api.nvim_get_current_tabpage()
+        local start_tab = vim.api.nvim_get_current_tabpage()
+        vim.b[ev.buf].tabnv_osc133_start_tab = start_tab
 
         -- The marker may report the command line (percent-encoded) via cmdline_url:
         -- e.g. \e]133;C;cmdline_url=echo%20hi\a — capture it for the completion notification
@@ -213,6 +214,12 @@ function M.create_autocmds()
           local cmd = vim.uri_decode(encoded):gsub('%s+$', '')
           if #cmd > 0 then
             vim.b[ev.buf].tabnv_osc133_cmdline = cmd
+
+            -- Store the command name separately so the original tab name is
+            -- preserved while the command is running.
+            u.set_tab_name(cmd, start_tab, true)
+            ws.recompute_tabline_tabs()
+            vim.cmd('redraw!')
           end
         end
         return
@@ -257,6 +264,15 @@ function M.handle_process_complete(bufnr, exit_code, cmd)
   end
 
   local start_tab = vim.b[bufnr].tabnv_osc133_start_tab
+
+  -- Clear the temporary command name after the command has finished.
+  if start_tab and vim.api.nvim_tabpage_is_valid(start_tab) then
+    u.clear_command_name(start_tab)
+    ws.recompute_tabline_tabs()
+    vim.cmd('redraw!')
+  end
+
+  vim.b[bufnr].tabnv_osc133_start_tab = nil
 
   -- Ensure we're looking at the same command/tab
   local start_tab_ok = false

@@ -32,8 +32,19 @@ end
 function M.get_tab_name(tab)
   tab = tab or vim.api.nvim_get_current_tabpage()
 
-  -- Prefer a user-defined name if it exists
+  -- Prefer the command name while a command is running. Include a custom tab
+  -- name as a prefix, but do not prefix with an automatically derived name.
+  local command_ok, command = pcall(vim.api.nvim_tabpage_get_var, tab, 'tabcommand')
+  local custom_ok, is_custom = pcall(vim.api.nvim_tabpage_get_var, tab, 'has_custom_tabname')
   local tabname_ok, tabname = pcall(vim.api.nvim_tabpage_get_var, tab, 'tabname')
+  if command_ok then
+    if custom_ok and is_custom and tabname_ok and tabname ~= '' then
+      return ('%s (%s)'):format(tabname, command)
+    end
+    return command
+  end
+
+  -- Prefer a user-defined name if it exists
   if tabname_ok then
     return tabname
   end
@@ -51,11 +62,25 @@ function M.get_tab_name(tab)
   return bufname:match("([^/\\]+)$") or "[No Name]"
 end
 
---- Set the current tab's name to what is given.
----@param name string
-function M.set_tab_name(name)
-  vim.api.nvim_tabpage_set_var(0, 'tabname', name)
-  vim.api.nvim_tabpage_set_var(0, 'has_custom_tabname', true)
+--- Set a tab's name to what is given.
+---@param name string The tab name or command name
+---@param tab any? A tab page handle (defaults to the current tab)
+---@param command boolean? Whether to set a temporary command name
+function M.set_tab_name(name, tab, command)
+  tab = tab or vim.api.nvim_get_current_tabpage()
+  if command then
+    vim.api.nvim_tabpage_set_var(tab, 'tabcommand', name)
+  else
+    vim.api.nvim_tabpage_set_var(tab, 'tabname', name)
+    vim.api.nvim_tabpage_set_var(tab, 'has_custom_tabname', true)
+  end
+  vim.cmd('redraw!')
+end
+
+--- Clear a temporary command name from a tab.
+---@param tab any A tab page handle
+function M.clear_command_name(tab)
+  pcall(vim.api.nvim_tabpage_del_var, tab, 'tabcommand')
   vim.cmd('redraw!')
 end
 
