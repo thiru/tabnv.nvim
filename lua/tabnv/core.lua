@@ -217,7 +217,7 @@ function M.create_autocmds()
 
             -- Store the command name separately so the original tab name is
             -- preserved while the command is running.
-            u.set_tab_name(cmd, start_tab, true)
+            u.set_tab_name(cmd, start_tab, true, M.config.tab_name_as_command_max_length)
             ws.recompute_tabline_tabs()
             vim.cmd('redraw!')
           end

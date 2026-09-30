@@ -140,6 +140,9 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
   -- callback invoked on tab change
   on_tab_changed = nil,
 
+  -- maximum length of a running command shown as a tab name
+  tab_name_as_command_max_length = 30,
+
   ssh = {
     -- automatically reconnect SSH sessions when they disconnect
     auto_reconnect = true,

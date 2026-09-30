@@ -9,6 +9,7 @@ local M = {}
 ---@field on_before_term_created function? If specified, this function will be called right before a terminal is created in a new tab.
 ---@field on_after_term_created function? If specified, this function will be called right after a terminal is created in a new tab.
 ---@field on_tab_changed function? If specified, this function will be called when the tab changes. It takes one parameter which indicates whether the current tab is a terminal mode tab.
+---@field tab_name_as_command_max_length number? Maximum length of a running command used as a tab name.
 ---@field ssh.auto_reconnect boolean? Automatically prompt to reconnect disconnected sessions
 ---@field ssh.auto_rename_tab boolean? Automatically rename the current tab to the SSH connection name
 ---@field ssh.password_detection table? Attempt to detect SSH authentication requests. Passwords will be cached and reused for future connections.
@@ -22,6 +23,7 @@ M.config = {
   on_before_term_created = nil,
   on_after_term_created = nil,
   on_tab_changed = nil,
+  tab_name_as_command_max_length = 30,
   ssh = {
     auto_reconnect = true,
     auto_rename_tab = true,

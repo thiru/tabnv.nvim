@@ -2,6 +2,19 @@
 
 local M = {}
 
+local function truncate_with_ellipsis(name, max_length)
+  local ellipsis = '...'
+  if not max_length or vim.fn.strchars(name) <= max_length then
+    return name
+  end
+
+  if max_length <= vim.fn.strchars(ellipsis) then
+    return vim.fn.strcharpart(ellipsis, 0, max_length)
+  end
+
+  return vim.fn.strcharpart(name, 0, max_length - vim.fn.strchars(ellipsis)) .. ellipsis
+end
+
 --- Runs `func` after `timeout` milliseconds.
 ---@param timeout number The timeout in milliseconds
 ---@param func function The function to execute
@@ -66,10 +79,11 @@ end
 ---@param name string The tab name or command name
 ---@param tab any? A tab page handle (defaults to the current tab)
 ---@param command boolean? Whether to set a temporary command name
-function M.set_tab_name(name, tab, command)
+---@param max_length number? Maximum length of a command name
+function M.set_tab_name(name, tab, command, max_length)
   tab = tab or vim.api.nvim_get_current_tabpage()
   if command then
-    vim.api.nvim_tabpage_set_var(tab, 'tabcommand', name)
+    vim.api.nvim_tabpage_set_var(tab, 'tabcommand', truncate_with_ellipsis(name, max_length))
   else
     vim.api.nvim_tabpage_set_var(tab, 'tabname', name)
     vim.api.nvim_tabpage_set_var(tab, 'has_custom_tabname', true)
