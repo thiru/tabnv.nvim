@@ -234,7 +234,7 @@ function M.recompute_tabline_workspaces()
 
   M.state.cached_tabline_workspaces = table.concat(
     vim.tbl_map(function(id)
-      local highlight = id == M.state.active_workspace.id and '%#TabLineSel#' or '%#TabLine#'
+      local highlight = id == M.state.active_workspace.id and '%#Directory#' or '%#Whitespace#'
       return string.format('%s %s %%*', highlight, id)
     end, workspace_ids))
   M.recompute_tabline_tabs()
