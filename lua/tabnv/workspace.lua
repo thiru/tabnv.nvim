@@ -11,7 +11,7 @@ local M = {
 }
 
 function M.setup(config)
-  M.state.all_workspaces[1] = {id = 1, tabs = {}}
+  M.state.all_workspaces[1] = {id = 1, name = '', tabs = {}}
   M.state.active_workspace = M.state.all_workspaces[1]
   M.add_tab_to_workspace()
   M.recompute_tabline_workspaces()
@@ -38,6 +38,9 @@ function M.setup(config)
 
   -- Go to workspace: last active
   vim.keymap.set({'n', 't'}, '<C-`>', M.go_to_last_active_workspace, {desc='Go to last active workspace'})
+
+  -- Rename workspace
+  vim.keymap.set({'n', 't'}, config.leader .. 'R', M.rename_workspace_prompt, {desc='Rename workspace'})
 
   -- Go to workspace: 1 -> 10
   vim.keymap.set({'n', 't'}, '<C-1>', function() M.go_to_workspace_by_index(1) end, {desc='Go to workspace 1'})
@@ -128,6 +131,22 @@ end
 --- Get (cached) tab labels for the active workspace.
 function M.tabline_tabs()
   return M.state.cached_tabline_tabs
+end
+
+--- Get the name of the active workspace.
+---@return string name The active workspace's name, or an empty string
+function M.get_active_workspace_name()
+  return M.state.active_workspace and M.state.active_workspace.name or ''
+end
+
+--- Show a prompt to rename the active workspace.
+function M.rename_workspace_prompt()
+  local curr_name = M.get_active_workspace_name()
+  local new_name = vim.fn.input('Workspace Name: ', curr_name)
+
+  if M.state.active_workspace then
+    M.state.active_workspace.name = new_name
+  end
 end
 
 --- Recompute the cached tab labels for the active workspace.
@@ -435,7 +454,7 @@ function M.go_to_workspace_by_index(idx)
     M.state.active_workspace = workspaces[idx]
     vim.api.nvim_set_current_tabpage(M.get_workspace_target_tab(workspaces[idx]))
   else
-    local new_workspace = {id = idx, tabs = {}}
+    local new_workspace = {id = idx, name = '', tabs = {}}
     M.state.active_workspace = new_workspace
     workspaces[idx] = new_workspace
     vim.cmd('tabnew')
@@ -535,7 +554,7 @@ function M.move_tab_to_workspace(target_ws_idx)
 
   -- create target workspace if it doesn't exist
   if not workspaces[target_ws_idx] then
-    workspaces[target_ws_idx] = {id = target_ws_idx, tabs = {}}
+    workspaces[target_ws_idx] = {id = target_ws_idx, name = '', tabs = {}}
   end
 
   -- add tab after the last active tab in the target workspace

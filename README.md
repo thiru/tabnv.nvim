@@ -101,6 +101,7 @@ optional dependency if using the SSH picker (pick one):
 | `<C-.>`         | Go to next workspace                  |
 | `<C-,>`         | Go to previous workspace              |
 | ``<C-`>``       | Go to last active workspace           |
+| `<leader>R`      | Rename current workspace              |
 | `<C-1>`…`<C-0>` | Go to workspace 1–10                  |
 | `<C-S-h>`       | Move current tab left                 |
 | `<C-S-l>`       | Move current tab right                |
@@ -175,6 +176,10 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
 - each workspace has its own set of tabs, and tab navigation (`<C-h>` / `<C-l>`) is scoped to the active workspace
 - a workspace is created automatically when you navigate to an unused workspace index (via `<C-1>`…`<C-0>`)
 - empty workspaces are cleaned up automatically
+- workspaces can be named with `<leader>R`; names default to an empty string
+
+The active workspace's name is available through
+`require('tabnv.workspace').get_active_workspace_name()`.
 
 ##### tabline integration
 
