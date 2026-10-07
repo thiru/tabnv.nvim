@@ -195,9 +195,11 @@ function M.recompute_tabline_tabs()
 
   local current_tab = vim.api.nvim_get_current_tabpage()
   local tabs = {}
+  local valid_tab_count = 0
 
   for index, tab in ipairs(workspace.tabs or {}) do
     if vim.api.nvim_tabpage_is_valid(tab) then
+      valid_tab_count = valid_tab_count + 1
       local ok, name = pcall(u.get_tab_name, tab)
       if ok and name then
         local highlight = tab == current_tab and '%#TabLineSel#' or '%#TabLine#'
@@ -215,6 +217,10 @@ function M.recompute_tabline_tabs()
         table.insert(tabs, label)
       end
     end
+  end
+
+  if valid_tab_count == 1 then
+    tabs = {}
   end
 
   M.state.cached_tabline_tabs = table.concat(tabs)
