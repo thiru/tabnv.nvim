@@ -208,7 +208,7 @@ function M.recompute_tabline_tabs()
         end
         local tab_index = M.config.show_tab_index_superscript and (u.to_superscript(index) .. ' ') or ''
         local label = string.format(
-          '%s %s%s%%*',
+          '%s%s [%s] %%*',
           highlight,
           tab_index,
           display_name:gsub('%%', '%%%%'))
