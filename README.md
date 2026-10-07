@@ -144,6 +144,9 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
   -- maximum length of a running command shown as a tab name
   tab_name_as_command_max_length = 30,
 
+  -- show each tab's index as a superscript in the tabline
+  show_tab_index_superscript = false,
+
   ssh = {
     -- automatically reconnect SSH sessions when they disconnect
     auto_reconnect = true,

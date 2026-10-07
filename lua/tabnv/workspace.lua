@@ -32,6 +32,7 @@ local M = {
 }
 
 function M.setup(config)
+  M.config = config
   M.state.all_workspaces[1] = new_workspace(1)
   M.state.active_workspace = M.state.all_workspaces[1]
   M.add_tab_to_workspace()
@@ -205,10 +206,11 @@ function M.recompute_tabline_tabs()
           display_name = u.replace_home_with_tilde(
             vim.fn.getcwd(-1, vim.api.nvim_tabpage_get_number(tab)))
         end
+        local tab_index = M.config.show_tab_index_superscript and (u.to_superscript(index) .. ' ') or ''
         local label = string.format(
-          '%s %s %s%%*',
+          '%s %s%s%%*',
           highlight,
-          u.to_superscript(index),
+          tab_index,
           display_name:gsub('%%', '%%%%'))
         table.insert(tabs, label)
       end
