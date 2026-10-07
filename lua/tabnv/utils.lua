@@ -52,7 +52,7 @@ function M.get_tab_name(tab)
   local tabname_ok, tabname = pcall(vim.api.nvim_tabpage_get_var, tab, 'tabname')
   if command_ok then
     if custom_ok and is_custom and tabname_ok and tabname ~= '' then
-      return ('%s (%s)'):format(tabname, command)
+      return ('%s: %s'):format(tabname, command)
     end
     return command
   end
