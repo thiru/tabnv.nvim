@@ -1,5 +1,26 @@
 local u = require('tabnv.utils')
 
+local function cwd_name(path)
+  local full_path = vim.fn.fnamemodify(path or vim.fn.getcwd(), ':p')
+  local trimmed_path = full_path:gsub('[\\/]+$', '')
+  if trimmed_path == '' then
+    return full_path
+  end
+
+  local name = vim.fn.fnamemodify(trimmed_path, ':t')
+  return name ~= '' and name or trimmed_path
+end
+
+local function new_workspace(id)
+  return {id = id, name = cwd_name(), has_custom_name = false, tabs = {}}
+end
+
+local function update_workspace_name(workspace, path)
+  if workspace and not workspace.has_custom_name then
+    workspace.name = cwd_name(path)
+  end
+end
+
 local M = {
   state = {
     all_workspaces = {},
@@ -11,7 +32,7 @@ local M = {
 }
 
 function M.setup(config)
-  M.state.all_workspaces[1] = {id = 1, name = '', tabs = {}}
+  M.state.all_workspaces[1] = new_workspace(1)
   M.state.active_workspace = M.state.all_workspaces[1]
   M.add_tab_to_workspace()
   M.recompute_tabline_workspaces()
@@ -106,6 +127,7 @@ function M.setup(config)
 
       if M.state.active_workspace then
         M.state.active_workspace.last_active_tab = curr_tab
+        update_workspace_name(M.state.active_workspace)
       end
 
       M.recompute_tabline_workspaces()
@@ -119,6 +141,16 @@ function M.setup(config)
       M.remove_tab_from_workspace()
     end,
     group = vim.api.nvim_create_augroup('tabnv_workspace_tabclosedpre', {clear = true}),
+    pattern = '*',
+  })
+
+  vim.api.nvim_create_autocmd('DirChanged', {
+    callback = function()
+      update_workspace_name(M.state.active_workspace)
+      M.recompute_tabline_workspaces()
+      vim.cmd('redrawstatus')
+    end,
+    group = vim.api.nvim_create_augroup('tabnv_workspace_dirchanged', {clear = true}),
     pattern = '*',
   })
 end
@@ -136,6 +168,7 @@ end
 --- Get the name of the active workspace.
 ---@return string name The active workspace's name, or an empty string
 function M.get_active_workspace_name()
+  update_workspace_name(M.state.active_workspace)
   return M.state.active_workspace and M.state.active_workspace.name or ''
 end
 
@@ -146,6 +179,8 @@ function M.rename_workspace_prompt()
 
   if M.state.active_workspace then
     M.state.active_workspace.name = new_name
+    M.state.active_workspace.has_custom_name = true
+    vim.cmd('redrawstatus')
   end
 end
 
@@ -190,6 +225,8 @@ function M.recompute_tabline_workspaces()
     M.recompute_tabline_tabs()
     return
   end
+
+  update_workspace_name(M.state.active_workspace)
 
   local workspaces = M.state.all_workspaces
   local workspace_ids = vim.tbl_keys(workspaces)
@@ -454,7 +491,7 @@ function M.go_to_workspace_by_index(idx)
     M.state.active_workspace = workspaces[idx]
     vim.api.nvim_set_current_tabpage(M.get_workspace_target_tab(workspaces[idx]))
   else
-    local new_workspace = {id = idx, name = '', tabs = {}}
+    local new_workspace = new_workspace(idx)
     M.state.active_workspace = new_workspace
     workspaces[idx] = new_workspace
     vim.cmd('tabnew')
@@ -554,7 +591,7 @@ function M.move_tab_to_workspace(target_ws_idx)
 
   -- create target workspace if it doesn't exist
   if not workspaces[target_ws_idx] then
-    workspaces[target_ws_idx] = {id = target_ws_idx, name = '', tabs = {}}
+    workspaces[target_ws_idx] = new_workspace(target_ws_idx)
   end
 
   -- add tab after the last active tab in the target workspace

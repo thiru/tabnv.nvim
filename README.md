@@ -176,7 +176,8 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
 - each workspace has its own set of tabs, and tab navigation (`<C-h>` / `<C-l>`) is scoped to the active workspace
 - a workspace is created automatically when you navigate to an unused workspace index (via `<C-1>`…`<C-0>`)
 - empty workspaces are cleaned up automatically
-- workspaces can be named with `<leader>R`; names default to an empty string
+- workspace names default to the current working directory's name and follow it when it changes
+- workspaces can be given a custom name with `<leader>R`; custom names are not changed when the working directory changes
 
 The active workspace's name is available through
 `require('tabnv.workspace').get_active_workspace_name()`.
