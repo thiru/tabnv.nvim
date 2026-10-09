@@ -111,11 +111,6 @@ function M.create_autocmds()
       vim.schedule(function ()
         -- Terminal Tab
         if u.is_terminal_buf() then
-          local ok, tabdir = pcall(vim.api.nvim_tabpage_get_var, 0, 'tabdir')
-          if ok then
-            vim.cmd.tcd(tabdir)
-          end
-
           if M.config.on_tab_changed then
             M.config.on_tab_changed(true)
           end
@@ -185,7 +180,6 @@ function M.create_autocmds()
   -- path before vim alters it by resolving symlinks.
   vim.api.nvim_create_autocmd('DirChangedPre', {
     callback = function(ev)
-      u.auto_set_tab_name(ev.file)
       ws.recompute_tabline_tabs()
       u.update_window_title()
     end,
@@ -243,7 +237,6 @@ function M.create_autocmds()
         vim.b[ev.buf].osc7_dir = dir
         if vim.api.nvim_get_current_buf() == ev.buf then
           vim.cmd.tcd(dir)
-          u.auto_set_tab_name(dir)
           ws.recompute_tabline_tabs()
           u.update_window_title()
         end
@@ -326,7 +319,6 @@ function M.new_tab()
 
   vim.cmd.startinsert()
 
-  u.auto_set_tab_name(vim.fn.getcwd())
   ws.recompute_tabline_tabs()
 end
 

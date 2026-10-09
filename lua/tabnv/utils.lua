@@ -48,24 +48,18 @@ function M.get_tab_name(tab)
   -- Prefer the command name while a command is running. Include a custom tab
   -- name as a prefix, but do not prefix with an automatically derived name.
   local command_ok, command = pcall(vim.api.nvim_tabpage_get_var, tab, 'tabcommand')
-  local custom_ok, is_custom = pcall(vim.api.nvim_tabpage_get_var, tab, 'has_custom_tabname')
-  local tabname_ok, tabname = pcall(vim.api.nvim_tabpage_get_var, tab, 'tabname')
+  local custom_ok, is_custom = pcall(vim.api.nvim_tabpage_get_var, tab, 'has_user_defined_tabname')
+  local user_defined_tabname_ok, user_defined_tabname = pcall(vim.api.nvim_tabpage_get_var, tab, 'user_defined_tabname')
   if command_ok then
-    if custom_ok and is_custom and tabname_ok and tabname ~= '' then
-      return ('%s: %s'):format(tabname, command)
+    if custom_ok and is_custom and user_defined_tabname_ok and user_defined_tabname ~= '' then
+      return ('%s: %s'):format(user_defined_tabname, command)
     end
     return command
   end
 
   -- Prefer a user-defined name if it exists
-  if tabname_ok then
-    return tabname
-  end
-
-  -- Use the tab's CWD if it exists
-  local tabdir_ok, tabdir = pcall(vim.api.nvim_tabpage_get_var, tab, 'tabdir')
-  if tabdir_ok then
-    return tabdir
+  if user_defined_tabname_ok then
+    return user_defined_tabname
   end
 
   -- Finally, fallback to the active buffer's filename
@@ -85,8 +79,8 @@ function M.set_tab_name(name, tab, command, max_length)
   if command then
     vim.api.nvim_tabpage_set_var(tab, 'tabcommand', truncate_with_ellipsis(name, max_length))
   else
-    vim.api.nvim_tabpage_set_var(tab, 'tabname', name)
-    vim.api.nvim_tabpage_set_var(tab, 'has_custom_tabname', true)
+    vim.api.nvim_tabpage_set_var(tab, 'user_defined_tabname', name)
+    vim.api.nvim_tabpage_set_var(tab, 'has_user_defined_tabname', true)
   end
   vim.cmd('redraw!')
 end
@@ -167,24 +161,6 @@ function M.is_empty_tab(tab)
   end
 
   return #buffers == 1 and buffers[1].name == '' and buffers[1].is_modified == false
-end
-
---- Update the current tab's name to the CWD, but only if a custom name was not already given.
-function M.auto_set_tab_name(path)
-  local tab = vim.api.nvim_get_current_tabpage()
-
-  -- If a custom name was set then just keep using it
-  local ok = pcall(vim.api.nvim_tabpage_get_var, tab, 'has_custom_tabname')
-  if ok then
-    return
-  end
-
-  if vim.bo[vim.api.nvim_get_current_buf()].buftype == 'terminal' then
-    local resolved_path = vim.fn.fnamemodify(path, ':p')
-    local pretty_path = M.replace_home_with_tilde(resolved_path):gsub("/$", "")
-    vim.api.nvim_tabpage_set_var(tab, 'tabname', pretty_path)
-    vim.api.nvim_tabpage_set_var(tab, 'tabdir', pretty_path)
-  end
 end
 
 --- Store the mode this tab is in.
