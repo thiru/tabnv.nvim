@@ -98,7 +98,7 @@ function M.create_autocmds()
   vim.api.nvim_create_autocmd('BufEnter', {
     callback = function()
       ws.recompute_tabline_tabs()
-      u.update_window_title()
+      ws.update_window_title()
     end,
     group = vim.api.nvim_create_augroup('tabnv_bufenter', {clear = true}),
     pattern = '*',
@@ -106,7 +106,7 @@ function M.create_autocmds()
 
   vim.api.nvim_create_autocmd('TabEnter', {
     callback = function ()
-      u.update_window_title()
+      ws.update_window_title()
 
       vim.schedule(function ()
         -- Terminal Tab
@@ -181,7 +181,7 @@ function M.create_autocmds()
   vim.api.nvim_create_autocmd('DirChangedPre', {
     callback = function(ev)
       ws.recompute_tabline_tabs()
-      u.update_window_title()
+      ws.update_window_title()
     end,
     group = vim.api.nvim_create_augroup('tabnv_dirchangedpre', {clear = true}),
     pattern = '*',
@@ -238,7 +238,7 @@ function M.create_autocmds()
         if vim.api.nvim_get_current_buf() == ev.buf then
           vim.cmd.tcd(dir)
           ws.recompute_tabline_tabs()
-          u.update_window_title()
+          ws.update_window_title()
         end
       end
     end,
@@ -351,7 +351,7 @@ function M.rename_tab_prompt()
   if #new_name > 0 then
     u.set_tab_name(new_name)
     ws.recompute_tabline_tabs()
-    u.update_window_title()
+    ws.update_window_title()
   end
 end
 
@@ -362,7 +362,7 @@ function M.set_window_prefix_prompt()
 
   if #new_prefix > 0 then
     vim.g.tabnv_window_prefix = new_prefix
-    u.update_window_title()
+    ws.update_window_title()
   end
 end
 

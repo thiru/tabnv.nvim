@@ -208,6 +208,7 @@ and your custom name is preserved.
 
 - the window/tab title is composed from
   - an optional window prefix (set via `<leader>p`)
+  - the active workspace name
   - the tab name itself
 
 #### floating terminal

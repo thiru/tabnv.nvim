@@ -155,7 +155,7 @@ M.open_ssh_terminal = function(target)
   if (M.config.auto_rename_tab) then
     u.set_tab_name(host)
     ws.recompute_tabline_tabs()
-    u.update_window_title()
+    ws.update_window_title()
   end
 
   vim.schedule(function()

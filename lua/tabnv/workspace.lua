@@ -37,6 +37,7 @@ function M.setup(config)
   M.state.active_workspace = M.state.all_workspaces[1]
   M.add_tab_to_workspace()
   M.recompute_tabline_workspaces()
+  M.update_window_title()
 
   -- Go to tab: prev/next
   vim.keymap.set({'n', 't'}, '<C-h>', M.go_to_prev_tab, {desc='Go to previous tab'})
@@ -132,6 +133,7 @@ function M.setup(config)
       end
 
       M.recompute_tabline_workspaces()
+      M.update_window_title()
     end,
     group = vim.api.nvim_create_augroup('tabnv_workspace_tabenter', {clear = true}),
     pattern = '*',
@@ -150,6 +152,7 @@ function M.setup(config)
       update_workspace_name(M.state.active_workspace)
       M.recompute_tabline_workspaces()
       vim.cmd('redrawstatus')
+      M.update_window_title()
     end,
     group = vim.api.nvim_create_augroup('tabnv_workspace_dirchanged', {clear = true}),
     pattern = '*',
@@ -173,6 +176,14 @@ function M.get_active_workspace_name()
   return M.state.active_workspace and M.state.active_workspace.name or ''
 end
 
+--- Update the window title with the optional prefix, active workspace, and tab name.
+function M.update_window_title()
+  local workspace_name = M.get_active_workspace_name()
+  local tab_name = u.get_tab_name()
+  local title = workspace_name ~= '' and (workspace_name .. ': ' .. tab_name) or tab_name
+  vim.opt.titlestring = (vim.g.tabnv_window_prefix and (vim.g.tabnv_window_prefix .. ': ') or '') .. title
+end
+
 --- Show a prompt to rename the active workspace.
 function M.rename_workspace_prompt()
   local curr_name = M.get_active_workspace_name()
@@ -182,6 +193,7 @@ function M.rename_workspace_prompt()
     M.state.active_workspace.name = new_name
     M.state.active_workspace.has_custom_name = true
     vim.cmd('redrawstatus')
+    M.update_window_title()
   end
 end
 
@@ -627,6 +639,7 @@ function M.move_tab_to_workspace(target_ws_idx)
   M.state.active_workspace = target_ws
 
   M.recompute_tabline_workspaces()
+  M.update_window_title()
 end
 
 function M.move_tab_left()

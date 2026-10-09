@@ -97,11 +97,6 @@ function M.is_terminal_buf()
   return type(vim.fn.getbufvar(vim.fn.bufnr(), 'terminal_job_id')) == 'number'
 end
 
---- Update the window title according to an optional user-defined prefix and tab name.
-function M.update_window_title()
-  vim.opt.titlestring = (vim.g.tabnv_window_prefix or '') .. M.get_tab_name()
-end
-
 --- Sort the given such that strings starting with alphabetic characters precede those starting
 --- with numeric characters.
 --- This is useful for the SSH picker as we probably want named connections to be more visible that IP addresses.
