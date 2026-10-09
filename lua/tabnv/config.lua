@@ -18,7 +18,7 @@ local M = {}
 ---@field ssh.password_detection.patterns string[]? Lua patterns used to detect an SSH authentication request
 ---@field ssh.picker string? Select the picker backend: 'auto' (try telescope first, fallback to fzf-lua), 'telescope', or 'fzf-lua'
 M.config = {
-  leader = '<C-;>',
+  leader = '<leader>t',
   neovide_term_opacity = nil,
   neovide_non_term_opacity = nil,
   on_before_term_created = nil,
