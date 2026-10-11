@@ -2,7 +2,11 @@
 
 local M = {}
 
-local function truncate_with_ellipsis(name, max_length)
+function M.is_non_empty_string(val)
+  return val and val ~= ''
+end
+
+function M.truncate_with_ellipsis(name, max_length)
   local ellipsis = '...'
   if not max_length or vim.fn.strchars(name) <= max_length then
     return name
@@ -45,24 +49,22 @@ end
 function M.get_tab_name(tab)
   tab = tab or vim.api.nvim_get_current_tabpage()
 
-  -- Prefer the command name while a command is running. Include a custom tab
-  -- name as a prefix, but do not prefix with an automatically derived name.
-  local command_ok, command = pcall(vim.api.nvim_tabpage_get_var, tab, 'tabcommand')
-  local custom_ok, is_custom = pcall(vim.api.nvim_tabpage_get_var, tab, 'has_user_defined_tabname')
-  local user_defined_tabname_ok, user_defined_tabname = pcall(vim.api.nvim_tabpage_get_var, tab, 'user_defined_tabname')
-  if command_ok then
-    if custom_ok and is_custom and user_defined_tabname_ok and user_defined_tabname ~= '' then
-      return ('%s: %s'):format(user_defined_tabname, command)
+  -- Show command if one is running:
+  local tab_cmd_ok, tab_cmd = pcall(vim.api.nvim_tabpage_get_var, tab, 'tab_cmd')
+  local user_def_tab_name_ok, user_def_tab_name = pcall(vim.api.nvim_tabpage_get_var, tab, 'user_def_tab_name')
+  if tab_cmd_ok and M.is_non_empty_string(tab_cmd) then
+    if user_def_tab_name_ok and M.is_non_empty_string(user_def_tab_name) then
+      return ('%s: %s'):format(user_def_tab_name, tab_cmd)
     end
-    return command
+    return tab_cmd
   end
 
-  -- Prefer a user-defined name if it exists
-  if user_defined_tabname_ok then
-    return user_defined_tabname
+  -- Show user-defined name if it exists
+  if user_def_tab_name_ok and M.is_non_empty_string(user_def_tab_name) then
+    return user_def_tab_name
   end
 
-  -- Finally, fallback to the active buffer's filename
+  -- Fallback to the active buffer's filename:
   local win = vim.api.nvim_tabpage_get_win(tab)
   local buf = vim.api.nvim_win_get_buf(win)
   local bufname = vim.api.nvim_buf_get_name(buf)
@@ -77,10 +79,9 @@ end
 function M.set_tab_name(name, tab, command, max_length)
   tab = tab or vim.api.nvim_get_current_tabpage()
   if command then
-    vim.api.nvim_tabpage_set_var(tab, 'tabcommand', truncate_with_ellipsis(name, max_length))
+    vim.api.nvim_tabpage_set_var(tab, 'tab_cmd', M.truncate_with_ellipsis(name, max_length))
   else
-    vim.api.nvim_tabpage_set_var(tab, 'user_defined_tabname', name)
-    vim.api.nvim_tabpage_set_var(tab, 'has_user_defined_tabname', true)
+    vim.api.nvim_tabpage_set_var(tab, 'user_def_tab_name', name)
   end
   vim.cmd('redraw!')
 end
@@ -88,7 +89,7 @@ end
 --- Clear a temporary command name from a tab.
 ---@param tab any A tab page handle
 function M.clear_command_name(tab)
-  pcall(vim.api.nvim_tabpage_del_var, tab, 'tabcommand')
+  pcall(vim.api.nvim_tabpage_del_var, tab, 'tab_cmd')
   vim.cmd('redraw!')
 end
 
