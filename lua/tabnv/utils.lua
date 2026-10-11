@@ -64,7 +64,13 @@ function M.get_tab_name(tab)
     return user_def_tab_name
   end
 
-  -- Fallback to the active buffer's filename:
+  -- Show tab directory if it exists
+  local tab_dir_ok, tab_dir = pcall(vim.api.nvim_tabpage_get_var, tab, 'tab_dir')
+  if tab_dir_ok and M.is_non_empty_string(tab_dir) then
+    return tab_dir
+  end
+
+  -- Fallback to the active buffer's filename
   local win = vim.api.nvim_tabpage_get_win(tab)
   local buf = vim.api.nvim_win_get_buf(win)
   local bufname = vim.api.nvim_buf_get_name(buf)

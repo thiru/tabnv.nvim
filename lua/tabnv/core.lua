@@ -175,11 +175,10 @@ function M.create_autocmds()
     pattern = '*',
   })
 
-  -- Use CWD for tab name if custom name not already set
   -- NOTE: The DirChangedPre event is used instead of DirChanged in order capture the original
   -- path before vim alters it by resolving symlinks.
   vim.api.nvim_create_autocmd('DirChangedPre', {
-    callback = function(ev)
+    callback = function()
       ws.recompute_tabline_tabs()
       ws.update_window_title()
     end,
@@ -236,8 +235,9 @@ function M.create_autocmds()
         end
         vim.b[ev.buf].osc7_dir = dir
         if vim.api.nvim_get_current_buf() == ev.buf then
+          vim.api.nvim_tabpage_set_var(0, 'tab_dir', vim.fn.fnamemodify(dir, ':t'))
           vim.cmd.tcd(dir)
-          ws.recompute_tabline_tabs()
+          ws.recompute_tabline_workspaces()
           ws.update_window_title()
         end
       end
