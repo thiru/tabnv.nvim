@@ -4,6 +4,7 @@ local M = {
   state = {}
 }
 
+local h = require('tabnv.helpers')
 local u = require('tabnv.utils')
 local ws = require('tabnv.workspace')
 
@@ -322,27 +323,6 @@ function M.new_tab()
   ws.recompute_tabline_tabs()
 end
 
---- Create a centred, floating window with a terminal and enter insert mode.
-function M.new_float_term()
-  local width = vim.o.columns * 0.8
-  local height = vim.o.lines * 0.8
-  local row = (vim.o.lines - height) / 2
-  local col = (vim.o.columns - width) / 2
-
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_open_win(buf, true, {
-    relative = 'editor',
-    width = math.floor(width),
-    height = math.floor(height),
-    row = math.floor(row),
-    col = math.floor(col),
-    style = 'minimal',
-  })
-
-  vim.cmd.terminal()
-  vim.cmd.startinsert()
-end
-
 --- Show prompt to rename the current tab.
 function M.rename_tab_prompt()
   local curr_name = u.get_tab_name()
@@ -376,7 +356,8 @@ function M.set_keybinds()
   vim.keymap.set('n', M.config.leader .. 't', M.new_tab, {desc = 'New terminal (tab)'})
 
   -- New floating, centred terminal
-  vim.keymap.set('n', M.config.leader .. 'f', M.new_float_term, {desc = 'New terminal (float)'})
+  vim.keymap.set('n', M.config.leader .. 'f', h.new_float_term, {desc = 'New terminal (float)'})
+  vim.keymap.set('n', '<C-x>', h.new_float_term, {desc = 'New terminal (float)'})
 
   -- Terminal ESC
   vim.keymap.set({'n', 't'}, '<C-space>', '<C-\\><C-n>', {desc = 'Escape terminal mode'})
