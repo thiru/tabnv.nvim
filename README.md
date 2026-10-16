@@ -129,12 +129,6 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
   -- this avoids conflicts with nested vim instances (similar to tmux's Ctrl-B)
   leader = '<leader><leader>',
 
-  -- callback invoked right before a terminal buffer is created
-  on_before_term_created = nil,
-
-  -- callback invoked right after a terminal buffer is created
-  on_after_term_created = nil,
-
   -- callback invoked on tab change
   on_tab_changed = nil,
 

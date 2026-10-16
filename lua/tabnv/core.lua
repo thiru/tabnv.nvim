@@ -305,21 +305,9 @@ end
 --- Create a new tab with a terminal and enter insert mode.
 function M.new_tab()
   vim.cmd('tabnew')
-
   M.set_term_opts()
-
-  if M.config.on_before_term_created then
-    M.config.on_before_term_created()
-  end
-
   vim.cmd.terminal()
-
-  if M.config.on_after_term_created then
-    M.config.on_after_term_created()
-  end
-
   vim.cmd.startinsert()
-
   ws.recompute_tabline_tabs()
 end
 
