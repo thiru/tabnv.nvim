@@ -120,7 +120,7 @@ M.open_ssh_terminal = function(target)
 
   -- Prompt to replace current buffer with terminal
   if target == 'this' then
-    local choice = vim.fn.confirm('Wipe out the current buffer and connect to ' .. host .. '?', '&Yes\n&No')
+    local choice = vim.fn.confirm('Discard current buffer and connect to ' .. host .. '?', '&Yes\n&No')
     if choice ~= 1 then
       return
     else
