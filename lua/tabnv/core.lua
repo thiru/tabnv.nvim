@@ -142,15 +142,6 @@ function M.create_autocmds()
     pattern = '*',
   })
 
-  vim.api.nvim_create_autocmd('TermClose', {
-    callback = function()
-      -- Avoid "Process exited 0" message
-      vim.api.nvim_input('<CR>')
-    end,
-    group = vim.api.nvim_create_augroup('tabnv_termclose', {clear = true}),
-    pattern = '*',
-  })
-
   -- Close tab if empty, or exit Neovim altogether if this is also the last tab
   vim.api.nvim_create_autocmd('TermLeave', {
     callback = function()
