@@ -84,7 +84,6 @@ function M.create_autocmds()
       end
     end,
     group = vim.api.nvim_create_augroup('tabnv_winleave', {clear = true}),
-    pattern = '*',
   })
   vim.api.nvim_create_autocmd('WinEnter', {
     callback = function()
@@ -93,7 +92,6 @@ function M.create_autocmds()
       end
     end,
     group = vim.api.nvim_create_augroup('tabnv_winenter', {clear = true}),
-    pattern = '*',
   })
 
   vim.api.nvim_create_autocmd('BufEnter', {
@@ -102,7 +100,6 @@ function M.create_autocmds()
       ws.update_window_title()
     end,
     group = vim.api.nvim_create_augroup('tabnv_bufenter', {clear = true}),
-    pattern = '*',
   })
 
   vim.api.nvim_create_autocmd('TabEnter', {
@@ -130,7 +127,6 @@ function M.create_autocmds()
       end)
     end,
     group = vim.api.nvim_create_augroup('tabnv_tabenter', {clear = true}),
-    pattern = '*',
   })
 
   -- Avoid 'modifiable is off' message and allow terminal to be editable
@@ -139,7 +135,6 @@ function M.create_autocmds()
       vim.opt_local.modifiable = true
     end,
     group = vim.api.nvim_create_augroup('tabnv_termopen', {clear = true}),
-    pattern = '*',
   })
 
   -- Close tab if empty, or exit Neovim altogether if this is also the last tab
@@ -164,7 +159,6 @@ function M.create_autocmds()
       end)
     end,
     group = vim.api.nvim_create_augroup('tabnv_termleave', {clear = true}),
-    pattern = '*',
   })
 
   -- NOTE: The DirChangedPre event is used instead of DirChanged in order capture the original
@@ -175,7 +169,6 @@ function M.create_autocmds()
       ws.update_window_title()
     end,
     group = vim.api.nvim_create_augroup('tabnv_dirchangedpre', {clear = true}),
-    pattern = '*',
   })
 
   -- Handles OSC escape sequences

@@ -99,7 +99,6 @@ function M.setup(config)
       M.recompute_tabline_workspaces()
     end,
     group = vim.api.nvim_create_augroup('tabnv_workspace_tabnew', {clear = true}),
-    pattern = '*',
   })
 
   vim.api.nvim_create_autocmd('TabEnter', {
@@ -136,7 +135,6 @@ function M.setup(config)
       M.update_window_title()
     end,
     group = vim.api.nvim_create_augroup('tabnv_workspace_tabenter', {clear = true}),
-    pattern = '*',
   })
 
   vim.api.nvim_create_autocmd('TabClosedPre', {
@@ -144,7 +142,6 @@ function M.setup(config)
       M.remove_tab_from_workspace()
     end,
     group = vim.api.nvim_create_augroup('tabnv_workspace_tabclosedpre', {clear = true}),
-    pattern = '*',
   })
 
   vim.api.nvim_create_autocmd('DirChanged', {
@@ -155,7 +152,6 @@ function M.setup(config)
       M.update_window_title()
     end,
     group = vim.api.nvim_create_augroup('tabnv_workspace_dirchanged', {clear = true}),
-    pattern = '*',
   })
 end
 
