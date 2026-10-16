@@ -184,7 +184,6 @@ the module exposes functions for use in your tabline:
 
 - `require('tabnv.workspace').tabline_workspaces()`
   – returns statusline-formatted workspace labels like `1 2`, indicating that
-  there are two workspaces; the active workspace is highlighted with
 - `require('tabnv.workspace').tabline_tabs()`
   – returns statusline-formatted text for the tabs in the active workspace
   - the active tab is highlighted with `TabLineSel`
