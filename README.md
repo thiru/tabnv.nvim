@@ -31,6 +31,8 @@ a [neovim](https://neovim.io/) plugin that turns your editor into a powerful ter
 
 ### installation
 
+Neovim 0.12+ recommended.
+
 #### vim.pack
 
 ```lua
