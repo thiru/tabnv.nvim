@@ -215,7 +215,6 @@ function M.create_autocmds()
         -- OSC 7: dir-change
         local dir = val
         if vim.fn.isdirectory(dir) == 0 then
-          vim.notify('invalid dir: ' .. dir)
           return
         end
         vim.b[ev.buf].osc7_dir = dir
