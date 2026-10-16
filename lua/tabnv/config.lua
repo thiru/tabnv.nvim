@@ -3,7 +3,7 @@
 local M = {}
 
 ---@class tabnv.Config
----@field leader string? A leader key is used for many key binds to avoid conflicting with nested vim instances. Tmux uses a similar approach with its default being CTRL-B.
+---@field leader string? Most keybinds will be prefixed with this key sequence.
 ---@field neovide_term_opacity number? Optional opacity to use for terminal tabs if running within Neovide.
 ---@field neovide_non_term_opacity number? Optional opacity to use for non-terminal tabs if running within Neovide.
 ---@field on_before_term_created function? If specified, this function will be called right before a terminal is created in a new tab.
@@ -18,7 +18,7 @@ local M = {}
 ---@field ssh.password_detection.patterns string[]? Lua patterns used to detect an SSH authentication request
 ---@field ssh.picker string? Select the picker backend: 'auto' (try telescope first, fallback to fzf-lua), 'telescope', or 'fzf-lua'
 M.config = {
-  leader = '<leader>t',
+  leader = '<leader><leader>',
   neovide_term_opacity = nil,
   neovide_non_term_opacity = nil,
   on_before_term_created = nil,
