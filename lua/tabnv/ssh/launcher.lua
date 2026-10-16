@@ -38,12 +38,17 @@ M.create_user_commands = function()
   end, { bang = true, nargs = 1, desc = 'Request SSH password injection from cache' })
 end
 
---- Alter SSH cache for the specified buffer in order to automatically inject the cached password.
----@param bufnr string The respective buffer number
+--- Re-arm password detection for the specified buffer: forces the detection loop to run
+--- again (bypassing the scanned-output limit) so the next SSH password prompt is detected
+--- and the cached password is offered. Untracked buffers are silently ignored.
+---@param bufnr string The buffer number of a tracked SSH terminal, as a string
 M.ssh_pwd_reinject = function(bufnr)
   if bufnr then
     vim.schedule(function()
       local buffer_cache = M.state.buffers[tonumber(bufnr)]
+      if buffer_cache == nil then
+        return
+      end
       buffer_cache.reinject = true
       buffer_cache.stdout_line_count = 0
     end)

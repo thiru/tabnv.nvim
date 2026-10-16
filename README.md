@@ -228,9 +228,22 @@ the module exposes functions for use in your tabline:
 - when `ssh.auto_reconnect` is enabled (default: `true`)
   - the SSH session is wrapped in a loop
   - and prompts you to press ENTER to reconnect after the session ends
+  - with password detection enabled, reconnecting also re-arms it for the next session
+    (see password re-injection below)
 
 ##### password detection & caching
 
 - when `ssh.password_detection.enabled` is `true` (default)
   - terminal output is monitored for ssh password prompts
   - and caches entered password so you don't have to re-enter it
+
+##### password re-injection
+
+- `:TabnvSshPwdReinject {bufnr}` re-arms password detection for the SSH terminal
+  buffer `{bufnr}` (its buffer number, as shown by `:ls`)
+  - resets the buffer's scanned-output limit, so the next ssh password prompt is
+    detected again and the cached password is offered pre-filled
+- the auto-reconnect loop invokes it automatically via a remote `nvim --server`
+  RPC call right before reconnecting, so you normally never need to run it yourself
+- it only has an effect when `ssh.password_detection.enabled` is `true`, as SSH
+  terminal buffers are only tracked then
