@@ -357,7 +357,6 @@ function M.set_keybinds()
 
   -- New floating, centred terminal
   vim.keymap.set('n', M.config.leader .. 'f', h.new_float_term, {desc = 'New terminal (float)'})
-  vim.keymap.set('n', '<C-x>', h.new_float_term, {desc = 'New terminal (float)'})
 
   -- Terminal ESC
   vim.keymap.set({'n', 't'}, '<C-space>', '<C-\\><C-n>', {desc = 'Escape terminal mode'})
