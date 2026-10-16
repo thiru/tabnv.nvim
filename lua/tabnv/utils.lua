@@ -90,14 +90,13 @@ function M.set_tab_name(name, tab, command, max_length)
   else
     vim.api.nvim_tabpage_set_var(tab, 'user_def_tab_name', name)
   end
-  vim.cmd('redraw!')
+  vim.cmd('redrawtabline')
 end
 
 --- Clear a temporary command name from a tab.
 ---@param tab any A tab page handle
 function M.clear_command_name(tab)
   pcall(vim.api.nvim_tabpage_del_var, tab, 'tab_cmd')
-  vim.cmd('redraw!')
 end
 
 --- Determine if the current buffer is a terminal.

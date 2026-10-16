@@ -246,7 +246,7 @@ function M.handle_process_complete(bufnr, exit_code, cmd)
   if start_tab and vim.api.nvim_tabpage_is_valid(start_tab) then
     u.clear_command_name(start_tab)
     ws.recompute_tabline_tabs()
-    vim.cmd('redraw!')
+    vim.cmd('redrawtabline')
   end
 
   vim.b[bufnr].tabnv_osc133_start_tab = nil
