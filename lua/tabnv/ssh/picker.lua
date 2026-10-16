@@ -35,13 +35,22 @@ M.picker = function(opts)
 
   local picker = M.config.picker or 'auto'
 
-  if picker == 'telescope' or (picker == 'auto' and pcall(require, 'telescope.actions.state')) then
+  -- Check picker availability upfront
+  local has_telescope = pcall(require, 'telescope.actions.state')
+  local has_fzf_lua = pcall(require, 'fzf-lua')
+
+  if (picker == 'telescope' or picker == 'auto') and has_telescope then
     M.picker_telescope(opts)
-  elseif picker == 'fzf-lua' or (picker == 'auto' and pcall(require, 'fzf-lua')) then
+  elseif (picker == 'fzf-lua' or picker == 'auto') and has_fzf_lua then
     M.picker_fzf_lua()
-  else
+  elseif picker == 'auto' then
     vim.notify(
       'SSH picker requires telescope.nvim or fzf-lua. Install one or set ssh.picker in config.',
+      vim.log.levels.ERROR
+    )
+  else
+    vim.notify(
+      'SSH picker backend "' .. picker .. '" is configured in ssh.picker but not installed.',
       vim.log.levels.ERROR
     )
   end
