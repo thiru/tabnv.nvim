@@ -8,7 +8,6 @@ local ssh = require('tabnv.ssh')
 local u = require('tabnv.utils')
 
 M.new_tab = core.new_tab
-M.new_float_term = core.new_float_term
 
 --- Setup and start plugin.
 ---

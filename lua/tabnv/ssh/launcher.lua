@@ -46,11 +46,13 @@ end
 --- Alter SSH cache for the specified buffer in order to automatically inject the cached password.
 ---@param bufnr string The respective buffer number
 M.ssh_pwd_reinject = function(bufnr)
-  vim.schedule(function ()
-    local buffer_cache = M.state.buffers[tonumber(bufnr)]
-    buffer_cache.reinject = true
-    buffer_cache.stdout_line_count = 0
-  end)
+  if bufnr then
+    vim.schedule(function ()
+      local buffer_cache = M.state.buffers[tonumber(bufnr)]
+      buffer_cache.reinject = true
+      buffer_cache.stdout_line_count = 0
+    end)
+  end
 end
 
 --- Get the appropriate shell command to start an SSH connection based on whether the user would
