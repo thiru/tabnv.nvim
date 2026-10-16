@@ -23,7 +23,7 @@ function M.setup(config)
   if vim.g.tabnv_auto_start_cmd ~= nil and #vim.g.tabnv_auto_start_cmd > 0 then
     u.with_timer(100, function()
       vim.schedule(function()
-        vim.fn.feedkeys(vim.g.tabnv_auto_start_cmd .. "\r\n")
+        vim.fn.feedkeys(vim.g.tabnv_auto_start_cmd .. '\r\n')
       end)
     end)
   end

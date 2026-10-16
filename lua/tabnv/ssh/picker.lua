@@ -17,8 +17,8 @@ M.setup = function(config, on_picker_action)
   vim.api.nvim_create_user_command(
     'SshPicker',
     M.picker,
-    {bang = true,
-     desc = 'Open SSH connection picker'})
+    { bang = true, desc = 'Open SSH connection picker' }
+  )
 end
 
 --- Get the host the user selected from the picker.
@@ -41,8 +41,9 @@ M.picker = function(opts)
     M.picker_fzf_lua()
   else
     vim.notify(
-      "SSH picker requires telescope.nvim or fzf-lua. Install one or set ssh.picker in config.",
-      vim.log.levels.ERROR)
+      'SSH picker requires telescope.nvim or fzf-lua. Install one or set ssh.picker in config.',
+      vim.log.levels.ERROR
+    )
   end
 end
 
@@ -53,42 +54,44 @@ M.picker_telescope = function(opts)
   local finders = require('telescope.finders')
   local pickers = require('telescope.pickers')
 
-  pickers.new(opts, {
-    prompt_title = 'SSH Picker',
-    finder = finders.new_table({results = ssh_parser.parse_hosts()}),
-    sorter = conf.generic_sorter(opts),
-    attach_mappings = function(prompt_bufnr, _)
-      actions.select_default:replace(function()
-        actions.close(prompt_bufnr)
-        local sel = action_state.get_selected_entry()
-        M.selected_host = sel and sel[1] or action_state.get_current_line()
-        M.on_picker_action('this')
-      end)
+  pickers
+    .new(opts, {
+      prompt_title = 'SSH Picker',
+      finder = finders.new_table({ results = ssh_parser.parse_hosts() }),
+      sorter = conf.generic_sorter(opts),
+      attach_mappings = function(prompt_bufnr, _)
+        actions.select_default:replace(function()
+          actions.close(prompt_bufnr)
+          local sel = action_state.get_selected_entry()
+          M.selected_host = sel and sel[1] or action_state.get_current_line()
+          M.on_picker_action('this')
+        end)
 
-      actions.select_tab:replace(function()
-        actions.close(prompt_bufnr)
-        local sel = action_state.get_selected_entry()
-        M.selected_host = sel and sel[1] or action_state.get_current_line()
-        M.on_picker_action('tab')
-      end)
+        actions.select_tab:replace(function()
+          actions.close(prompt_bufnr)
+          local sel = action_state.get_selected_entry()
+          M.selected_host = sel and sel[1] or action_state.get_current_line()
+          M.on_picker_action('tab')
+        end)
 
-      actions.select_horizontal:replace(function()
-        actions.close(prompt_bufnr)
-        local sel = action_state.get_selected_entry()
-        M.selected_host = sel and sel[1] or action_state.get_current_line()
-        M.on_picker_action('split')
-      end)
+        actions.select_horizontal:replace(function()
+          actions.close(prompt_bufnr)
+          local sel = action_state.get_selected_entry()
+          M.selected_host = sel and sel[1] or action_state.get_current_line()
+          M.on_picker_action('split')
+        end)
 
-      actions.select_vertical:replace(function()
-        actions.close(prompt_bufnr)
-        local sel = action_state.get_selected_entry()
-        M.selected_host = sel and sel[1] or action_state.get_current_line()
-        M.on_picker_action('vsplit')
-      end)
+        actions.select_vertical:replace(function()
+          actions.close(prompt_bufnr)
+          local sel = action_state.get_selected_entry()
+          M.selected_host = sel and sel[1] or action_state.get_current_line()
+          M.on_picker_action('vsplit')
+        end)
 
-      return true
-    end,
-  }):find()
+        return true
+      end,
+    })
+    :find()
 end
 
 M.picker_fzf_lua = function()
@@ -97,25 +100,25 @@ M.picker_fzf_lua = function()
   fzf_lua.fzf_exec(ssh_parser.parse_hosts(), {
     prompt = 'SSH Picker ',
     actions = {
-      ["default"] = function(selected)
+      ['default'] = function(selected)
         if selected and #selected > 0 then
           M.selected_host = selected[1]
           M.on_picker_action('this')
         end
       end,
-      ["ctrl-t"] = function(selected)
+      ['ctrl-t'] = function(selected)
         if selected and #selected > 0 then
           M.selected_host = selected[1]
           M.on_picker_action('tab')
         end
       end,
-      ["ctrl-s"] = function(selected)
+      ['ctrl-s'] = function(selected)
         if selected and #selected > 0 then
           M.selected_host = selected[1]
           M.on_picker_action('split')
         end
       end,
-      ["ctrl-v"] = function(selected)
+      ['ctrl-v'] = function(selected)
         if selected and #selected > 0 then
           M.selected_host = selected[1]
           M.on_picker_action('vsplit')

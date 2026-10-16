@@ -20,7 +20,7 @@ local max_lines_detect = 50
 ---@field pwds {[string]: string} Cached passwords by SSH hostname
 M.state = {
   buffers = {},
-  pwds = {}
+  pwds = {},
 }
 
 --- Setup the launcher.
@@ -33,21 +33,16 @@ end
 
 --- Create user command to facilitate SSH password injection.
 M.create_user_commands = function()
-  vim.api.nvim_create_user_command(
-    'TabnvSshPwdReinject',
-    function(opts)
-      M.ssh_pwd_reinject(opts.args)
-    end,
-    {bang = true,
-     nargs = 1,
-     desc = 'Request SSH password injection from cache'})
+  vim.api.nvim_create_user_command('TabnvSshPwdReinject', function(opts)
+    M.ssh_pwd_reinject(opts.args)
+  end, { bang = true, nargs = 1, desc = 'Request SSH password injection from cache' })
 end
 
 --- Alter SSH cache for the specified buffer in order to automatically inject the cached password.
 ---@param bufnr string The respective buffer number
 M.ssh_pwd_reinject = function(bufnr)
   if bufnr then
-    vim.schedule(function ()
+    vim.schedule(function()
       local buffer_cache = M.state.buffers[tonumber(bufnr)]
       buffer_cache.reinject = true
       buffer_cache.stdout_line_count = 0
@@ -67,13 +62,17 @@ M.get_ssh_cmd = function(host, bufnr)
     local ssh_cmd_nested = "(ssh '" .. host .. "' || true)"
     local confirm_msg = "'Press ENTER to reconnect to " .. host .. " (CTRL-C to cancel) '"
     local nvim_server_name = vim.v.servername:gsub('\\', '\\\\')
-    cmd = ' sh -c "' ..
-          'while true;' ..
-          ' do ' .. ssh_cmd_nested .. ';' ..
-          ' printf ' .. confirm_msg .. ';' ..
-          ' read -r dummy </dev/tty;' ..
-           (M.config.password_detection.enabled and " nvim --server '" .. nvim_server_name  .. '\' --remote-expr \'execute(\\"TabnvSshPwdReinject ' .. bufnr .. '\\")\';' or '') ..
-          ' done"'
+    cmd = ' sh -c "'
+      .. 'while true;'
+      .. ' do '
+      .. ssh_cmd_nested
+      .. ';'
+      .. ' printf '
+      .. confirm_msg
+      .. ';'
+      .. ' read -r dummy </dev/tty;'
+      .. (M.config.password_detection.enabled and " nvim --server '" .. nvim_server_name .. "' --remote-expr 'execute(\\\"TabnvSshPwdReinject " .. bufnr .. '\\")\';' or '')
+      .. ' done"'
   end
 
   return cmd
@@ -93,12 +92,12 @@ M.create_stdout_callback = function(bufnr)
     local cached_pwd = (M.state.pwds[buffer_cache.host] or '')
     local max_stdout_lines_read = buffer_cache.stdout_line_count >= max_lines_detect
 
-    if (buffer_cache.reinject or (not max_stdout_lines_read)) then
+    if buffer_cache.reinject or not max_stdout_lines_read then
       for _, line in ipairs(data) do
         line = vim.trim(line)
         buffer_cache.stdout_line_count = buffer_cache.stdout_line_count + 1
         for _, pattern in ipairs(M.config.password_detection.patterns) do
-          if (line:find(pattern)) then
+          if line:find(pattern) then
             local msg = 'Enter password for ' .. buffer_cache.host .. ': '
             cached_pwd = (vim.fn.inputsecret(msg, cached_pwd) or '')
             if #cached_pwd > 0 then
@@ -120,11 +119,12 @@ M.open_ssh_terminal = function(target)
 
   -- Prompt to replace current buffer with terminal
   if target == 'this' then
-    local choice = vim.fn.confirm('Discard current buffer and connect to ' .. host .. '?', '&Yes\n&No')
+    local choice =
+      vim.fn.confirm('Discard current buffer and connect to ' .. host .. '?', '&Yes\n&No')
     if choice ~= 1 then
       return
     else
-      vim.api.nvim_set_option_value('modified', false, {buf=vim.api.nvim_get_current_buf()})
+      vim.api.nvim_set_option_value('modified', false, { buf = vim.api.nvim_get_current_buf() })
       vim.cmd.enew()
     end
   -- Start terminal in a new tab
@@ -142,21 +142,22 @@ M.open_ssh_terminal = function(target)
   vim.notify('Connecting to ' .. host, vim.log.levels.INFO)
 
   -- Start a Neovim terminal
-  local job_opts = {term = true}
+  local job_opts = { term = true }
 
   if M.config.password_detection.enabled then
     M.state.buffers[bufnr] = {
       host = host,
       reinject = false,
       -- Count stdout lines processed so we don't keep trying to detect an SSH password prompt for too long
-      stdout_line_count = 0}
+      stdout_line_count = 0,
+    }
 
     job_opts.on_stdout = M.create_stdout_callback(bufnr)
   end
 
   vim.fn.jobstart(cmd, job_opts)
 
-  if (M.config.auto_rename_tab) then
+  if M.config.auto_rename_tab then
     u.set_tab_name(host)
     ws.recompute_tabline_tabs()
     ws.update_window_title()

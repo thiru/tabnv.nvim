@@ -1,0 +1,20 @@
+# Code style for StyLua (https://github.com/JohnnyMorganz/StyLua)
+# Pins the conventions already used throughout lua/
+
+# 2-space indentation, no tabs
+indent_type = "Spaces"
+indent_width = 2
+
+# Single-quoted strings; double quotes only when the string contains more
+# single quotes than double quotes (avoids escaping)
+quote_style = "AutoPreferSingle"
+
+# Unix line endings everywhere
+line_endings = "Unix"
+
+# Always keep parentheses around function call arguments (e.g. require('x'))
+call_parentheses = "Always"
+
+# Wrap lines longer than this
+column_width = 100
+

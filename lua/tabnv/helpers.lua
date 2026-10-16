@@ -23,7 +23,7 @@ end
 function M.new_float_term()
   M.create_centred_float_win()
 
-  local job = vim.fn.jobstart({ "nvim", "+TabnvStart" }, { term = true })
+  local job = vim.fn.jobstart({ 'nvim', '+TabnvStart' }, { term = true })
 
   if job > 0 then
     vim.cmd.startinsert()

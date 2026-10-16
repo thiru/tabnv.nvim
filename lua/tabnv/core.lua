@@ -1,7 +1,7 @@
 --- Contains the core functionality of this plugin.
 
 local M = {
-  state = {}
+  state = {},
 }
 
 local h = require('tabnv.helpers')
@@ -83,7 +83,7 @@ function M.create_autocmds()
         u.save_tab_mode_and_coord()
       end
     end,
-    group = vim.api.nvim_create_augroup('tabnv_winleave', {clear = true}),
+    group = vim.api.nvim_create_augroup('tabnv_winleave', { clear = true }),
   })
   vim.api.nvim_create_autocmd('WinEnter', {
     callback = function()
@@ -91,7 +91,7 @@ function M.create_autocmds()
         u.restore_tab_mode_and_coord()
       end
     end,
-    group = vim.api.nvim_create_augroup('tabnv_winenter', {clear = true}),
+    group = vim.api.nvim_create_augroup('tabnv_winenter', { clear = true }),
   })
 
   vim.api.nvim_create_autocmd('BufEnter', {
@@ -99,14 +99,14 @@ function M.create_autocmds()
       ws.recompute_tabline_tabs()
       ws.update_window_title()
     end,
-    group = vim.api.nvim_create_augroup('tabnv_bufenter', {clear = true}),
+    group = vim.api.nvim_create_augroup('tabnv_bufenter', { clear = true }),
   })
 
   vim.api.nvim_create_autocmd('TabEnter', {
-    callback = function ()
+    callback = function()
       ws.update_window_title()
 
-      vim.schedule(function ()
+      vim.schedule(function()
         -- Terminal Tab
         if u.is_terminal_buf() then
           if M.config.on_tab_changed then
@@ -126,7 +126,7 @@ function M.create_autocmds()
         end
       end)
     end,
-    group = vim.api.nvim_create_augroup('tabnv_tabenter', {clear = true}),
+    group = vim.api.nvim_create_augroup('tabnv_tabenter', { clear = true }),
   })
 
   -- Avoid 'modifiable is off' message and allow terminal to be editable
@@ -134,7 +134,7 @@ function M.create_autocmds()
     callback = function()
       vim.opt_local.modifiable = true
     end,
-    group = vim.api.nvim_create_augroup('tabnv_termopen', {clear = true}),
+    group = vim.api.nvim_create_augroup('tabnv_termopen', { clear = true }),
   })
 
   -- Close tab if empty, or exit Neovim altogether if this is also the last tab
@@ -158,7 +158,7 @@ function M.create_autocmds()
         end
       end)
     end,
-    group = vim.api.nvim_create_augroup('tabnv_termleave', {clear = true}),
+    group = vim.api.nvim_create_augroup('tabnv_termleave', { clear = true }),
   })
 
   -- NOTE: The DirChangedPre event is used instead of DirChanged in order capture the original
@@ -168,11 +168,11 @@ function M.create_autocmds()
       ws.recompute_tabline_tabs()
       ws.update_window_title()
     end,
-    group = vim.api.nvim_create_augroup('tabnv_dirchangedpre', {clear = true}),
+    group = vim.api.nvim_create_augroup('tabnv_dirchangedpre', { clear = true }),
   })
 
   -- Handles OSC escape sequences
-  vim.api.nvim_create_autocmd({'TermRequest'}, {
+  vim.api.nvim_create_autocmd({ 'TermRequest' }, {
     callback = function(ev)
       local seq = ev.data.sequence
 
@@ -215,7 +215,7 @@ function M.create_autocmds()
         -- OSC 7: dir-change
         local dir = val
         if vim.fn.isdirectory(dir) == 0 then
-          vim.notify('invalid dir: '..dir)
+          vim.notify('invalid dir: ' .. dir)
           return
         end
         vim.b[ev.buf].osc7_dir = dir
@@ -227,7 +227,7 @@ function M.create_autocmds()
         end
       end
     end,
-    group = vim.api.nvim_create_augroup('tabnv_termrequest', {clear = true})
+    group = vim.api.nvim_create_augroup('tabnv_termrequest', { clear = true }),
   })
 end
 
@@ -321,86 +321,81 @@ end
 --- Define key bindings. These are mostly leader-key-based.
 function M.set_keybinds()
   -- New buffer tab
-  vim.keymap.set({'n', 't'}, '<C-t>', '<CMD>tabnew<CR>', {desc = 'New editor (tab)'})
+  vim.keymap.set({ 'n', 't' }, '<C-t>', '<CMD>tabnew<CR>', { desc = 'New editor (tab)' })
 
   -- New terminal tab
-  vim.keymap.set({'n', 't'}, '<C-cr>', M.new_tab, {desc = 'New terminal (tab)'})
-  vim.keymap.set('n', M.config.leader .. 't', M.new_tab, {desc = 'New terminal (tab)'})
+  vim.keymap.set({ 'n', 't' }, '<C-cr>', M.new_tab, { desc = 'New terminal (tab)' })
+  vim.keymap.set('n', M.config.leader .. 't', M.new_tab, { desc = 'New terminal (tab)' })
 
   -- New floating, centred terminal
-  vim.keymap.set('n', M.config.leader .. 'f', h.new_float_term, {desc = 'New terminal (float)'})
+  vim.keymap.set('n', M.config.leader .. 'f', h.new_float_term, { desc = 'New terminal (float)' })
 
   -- Terminal ESC
-  vim.keymap.set({'n', 't'}, '<C-space>', '<C-\\><C-n>', {desc = 'Escape terminal mode'})
+  vim.keymap.set({ 'n', 't' }, '<C-space>', '<C-\\><C-n>', { desc = 'Escape terminal mode' })
 
   -- Up/down
-  vim.keymap.set({'c', 't'}, '<C-j>', '<Down>', {desc = 'Down arrow'})
-  vim.keymap.set({'c', 't'}, '<C-k>', '<Up>', {desc = 'Up arrow'})
+  vim.keymap.set({ 'c', 't' }, '<C-j>', '<Down>', { desc = 'Down arrow' })
+  vim.keymap.set({ 'c', 't' }, '<C-k>', '<Up>', { desc = 'Up arrow' })
 
   -- Paste
-  vim.keymap.set('t', '<C-v>',
-    function()
-      local terminal_job_id = vim.fn.getbufvar(vim.fn.bufnr(), 'terminal_job_id')
-      vim.api.nvim_chan_send(terminal_job_id, vim.fn.getreg('+'))
-    end,
-    {desc = 'Paste from system clipboard'})
+  vim.keymap.set('t', '<C-v>', function()
+    local terminal_job_id = vim.fn.getbufvar(vim.fn.bufnr(), 'terminal_job_id')
+    vim.api.nvim_chan_send(terminal_job_id, vim.fn.getreg('+'))
+  end, { desc = 'Paste from system clipboard' })
   vim.keymap.set('t', '<C-S-v>', '<C-\\><C-n>pi', { desc = 'Paste from default register' })
 
   -- New vertical split terminal
-  vim.keymap.set(
-    'n',
-    M.config.leader .. 'v',
-    function()
-      vim.cmd.vsplit()
-      vim.cmd.enew()
-      vim.cmd.terminal()
-      vim.cmd.startinsert()
-    end,
-    {desc = 'New terminal (vertical split)'})
+  vim.keymap.set('n', M.config.leader .. 'v', function()
+    vim.cmd.vsplit()
+    vim.cmd.enew()
+    vim.cmd.terminal()
+    vim.cmd.startinsert()
+  end, { desc = 'New terminal (vertical split)' })
 
   -- New horizontal split terminal
-  vim.keymap.set(
-    'n',
-    M.config.leader .. 'h',
-    function()
-      vim.cmd.split()
-      vim.cmd.enew()
-      vim.cmd.terminal()
-      vim.cmd.startinsert()
-    end,
-    {desc = 'New terminal (horizontal split)'})
+  vim.keymap.set('n', M.config.leader .. 'h', function()
+    vim.cmd.split()
+    vim.cmd.enew()
+    vim.cmd.terminal()
+    vim.cmd.startinsert()
+  end, { desc = 'New terminal (horizontal split)' })
 
   -- Rename tab
-  vim.keymap.set('n', M.config.leader .. 'r', M.rename_tab_prompt, {desc = 'Rename tab'})
+  vim.keymap.set('n', M.config.leader .. 'r', M.rename_tab_prompt, { desc = 'Rename tab' })
 
   -- SSH picker
-  vim.keymap.set('n', M.config.leader .. 's', '<CMD>SshPicker<CR>', {desc = 'Launch [S]SH connection picker'})
+  vim.keymap.set(
+    'n',
+    M.config.leader .. 's',
+    '<CMD>SshPicker<CR>',
+    { desc = 'Launch [S]SH connection picker' }
+  )
 
   -- Window prefix
-  vim.keymap.set('n', M.config.leader .. 'p', M.set_window_prefix_prompt, {desc = 'Set Window [P]refix'})
+  vim.keymap.set(
+    'n',
+    M.config.leader .. 'p',
+    M.set_window_prefix_prompt,
+    { desc = 'Set Window [P]refix' }
+  )
 
   -- Close tab
-  vim.keymap.set(
-    'n', M.config.leader .. 'q',
-    function()
-      if #vim.api.nvim_list_tabpages() <= 1 then
-        vim.cmd.quitall()
-      else
-        vim.cmd.tabclose()
-      end
-    end,
-    { desc = 'Close tab (exit if last)' })
+  vim.keymap.set('n', M.config.leader .. 'q', function()
+    if #vim.api.nvim_list_tabpages() <= 1 then
+      vim.cmd.quitall()
+    else
+      vim.cmd.tabclose()
+    end
+  end, { desc = 'Close tab (exit if last)' })
 
   -- Close tab (ignore unsaved changes)
-  vim.keymap.set('n', M.config.leader .. 'Q',
-    function()
-      if #vim.api.nvim_list_tabpages() <= 1 then
-        vim.cmd('quitall!')
-      else
-        vim.cmd('tabclose!')
-      end
-    end,
-    {desc = 'Close tab (ignore unsaved changes)'})
+  vim.keymap.set('n', M.config.leader .. 'Q', function()
+    if #vim.api.nvim_list_tabpages() <= 1 then
+      vim.cmd('quitall!')
+    else
+      vim.cmd('tabclose!')
+    end
+  end, { desc = 'Close tab (ignore unsaved changes)' })
 end
 
 return M

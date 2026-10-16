@@ -16,7 +16,7 @@ M.parse_ssh_config = function()
   end
 
   for _, line in pairs(vim.fn.readfile(source_file)) do
-    local match = string.match(line, "^%s*Host%s+(.+)%s*$")
+    local match = string.match(line, '^%s*Host%s+(.+)%s*$')
     if match and match ~= '*' then
       table.insert(hosts, match)
     end
@@ -38,7 +38,7 @@ M.parse_known_hosts = function()
   end
 
   for _, line in pairs(vim.fn.readfile(source_file)) do
-    local match = string.match(line, "^%s*([%w.]+)[%s\\,]")
+    local match = string.match(line, '^%s*([%w.]+)[%s\\,]')
     if match and not vim.tbl_contains(hosts, match) then
       table.insert(hosts, match)
     end

@@ -12,7 +12,7 @@ local function cwd_name(path)
 end
 
 local function new_workspace(id)
-  return {id = id, name = cwd_name(), has_custom_name = false, tabs = {}}
+  return { id = id, name = cwd_name(), has_custom_name = false, tabs = {} }
 end
 
 local function update_workspace_name(workspace, path)
@@ -28,7 +28,7 @@ local M = {
     previous_workspace = nil,
     cached_tabline_workspaces = '',
     cached_tabline_tabs = '',
-  }
+  },
 }
 
 function M.setup(config)
@@ -40,65 +40,140 @@ function M.setup(config)
   M.update_window_title()
 
   -- Go to tab: prev/next
-  vim.keymap.set({'n', 't'}, '<C-h>', M.go_to_prev_tab, {desc='Go to previous tab'})
-  vim.keymap.set({'n', 't'}, '<C-l>', M.go_to_next_tab, {desc='Go to next tab'})
+  vim.keymap.set({ 'n', 't' }, '<C-h>', M.go_to_prev_tab, { desc = 'Go to previous tab' })
+  vim.keymap.set({ 'n', 't' }, '<C-l>', M.go_to_next_tab, { desc = 'Go to next tab' })
 
   -- Go to tab: 1 -> 10
-  vim.keymap.set('n', config.leader .. '1', function() M.go_to_tab_by_index(1) end, {desc='Go to tab 1'})
-  vim.keymap.set('n', config.leader .. '2', function() M.go_to_tab_by_index(2) end, {desc='Go to tab 2'})
-  vim.keymap.set('n', config.leader .. '3', function() M.go_to_tab_by_index(3) end, {desc='Go to tab 3'})
-  vim.keymap.set('n', config.leader .. '4', function() M.go_to_tab_by_index(4) end, {desc='Go to tab 4'})
-  vim.keymap.set('n', config.leader .. '5', function() M.go_to_tab_by_index(5) end, {desc='Go to tab 5'})
-  vim.keymap.set('n', config.leader .. '6', function() M.go_to_tab_by_index(6) end, {desc='Go to tab 6'})
-  vim.keymap.set('n', config.leader .. '7', function() M.go_to_tab_by_index(7) end, {desc='Go to tab 7'})
-  vim.keymap.set('n', config.leader .. '8', function() M.go_to_tab_by_index(8) end, {desc='Go to tab 8'})
-  vim.keymap.set('n', config.leader .. '9', function() M.go_to_tab_by_index(9) end, {desc='Go to tab 9'})
-  vim.keymap.set('n', config.leader .. '0', function() M.go_to_tab_by_index(10) end, {desc='Go to tab 10'})
+  vim.keymap.set('n', config.leader .. '1', function()
+    M.go_to_tab_by_index(1)
+  end, { desc = 'Go to tab 1' })
+  vim.keymap.set('n', config.leader .. '2', function()
+    M.go_to_tab_by_index(2)
+  end, { desc = 'Go to tab 2' })
+  vim.keymap.set('n', config.leader .. '3', function()
+    M.go_to_tab_by_index(3)
+  end, { desc = 'Go to tab 3' })
+  vim.keymap.set('n', config.leader .. '4', function()
+    M.go_to_tab_by_index(4)
+  end, { desc = 'Go to tab 4' })
+  vim.keymap.set('n', config.leader .. '5', function()
+    M.go_to_tab_by_index(5)
+  end, { desc = 'Go to tab 5' })
+  vim.keymap.set('n', config.leader .. '6', function()
+    M.go_to_tab_by_index(6)
+  end, { desc = 'Go to tab 6' })
+  vim.keymap.set('n', config.leader .. '7', function()
+    M.go_to_tab_by_index(7)
+  end, { desc = 'Go to tab 7' })
+  vim.keymap.set('n', config.leader .. '8', function()
+    M.go_to_tab_by_index(8)
+  end, { desc = 'Go to tab 8' })
+  vim.keymap.set('n', config.leader .. '9', function()
+    M.go_to_tab_by_index(9)
+  end, { desc = 'Go to tab 9' })
+  vim.keymap.set('n', config.leader .. '0', function()
+    M.go_to_tab_by_index(10)
+  end, { desc = 'Go to tab 10' })
 
   -- Go to workspace: prev/next
-  vim.keymap.set({'n', 't'}, '<C-,>', M.go_to_prev_workspace, {desc='Go to previous workspace'})
-  vim.keymap.set({'n', 't'}, '<C-.>', M.go_to_next_workspace, {desc='Go to next workspace'})
+  vim.keymap.set(
+    { 'n', 't' },
+    '<C-,>',
+    M.go_to_prev_workspace,
+    { desc = 'Go to previous workspace' }
+  )
+  vim.keymap.set({ 'n', 't' }, '<C-.>', M.go_to_next_workspace, { desc = 'Go to next workspace' })
 
   -- Go to workspace: last active
-  vim.keymap.set({'n', 't'}, '<C-`>', M.go_to_last_active_workspace, {desc='Go to last active workspace'})
+  vim.keymap.set(
+    { 'n', 't' },
+    '<C-`>',
+    M.go_to_last_active_workspace,
+    { desc = 'Go to last active workspace' }
+  )
 
   -- Rename workspace
-  vim.keymap.set('n', config.leader .. 'R', M.rename_workspace_prompt, {desc='Rename workspace'})
+  vim.keymap.set(
+    'n',
+    config.leader .. 'R',
+    M.rename_workspace_prompt,
+    { desc = 'Rename workspace' }
+  )
 
   -- Go to workspace: 1 -> 10
-  vim.keymap.set({'n', 't'}, '<C-1>', function() M.go_to_workspace_by_index(1) end, {desc='Go to workspace 1'})
-  vim.keymap.set({'n', 't'}, '<C-2>', function() M.go_to_workspace_by_index(2) end, {desc='Go to workspace 2'})
-  vim.keymap.set({'n', 't'}, '<C-3>', function() M.go_to_workspace_by_index(3) end, {desc='Go to workspace 3'})
-  vim.keymap.set({'n', 't'}, '<C-4>', function() M.go_to_workspace_by_index(4) end, {desc='Go to workspace 4'})
-  vim.keymap.set({'n', 't'}, '<C-5>', function() M.go_to_workspace_by_index(5) end, {desc='Go to workspace 5'})
-  vim.keymap.set({'n', 't'}, '<C-6>', function() M.go_to_workspace_by_index(6) end, {desc='Go to workspace 6'})
-  vim.keymap.set({'n', 't'}, '<C-7>', function() M.go_to_workspace_by_index(7) end, {desc='Go to workspace 7'})
-  vim.keymap.set({'n', 't'}, '<C-8>', function() M.go_to_workspace_by_index(8) end, {desc='Go to workspace 8'})
-  vim.keymap.set({'n', 't'}, '<C-9>', function() M.go_to_workspace_by_index(9) end, {desc='Go to workspace 9'})
-  vim.keymap.set({'n', 't'}, '<C-0>', function() M.go_to_workspace_by_index(10) end, {desc='Go to workspace 10'})
+  vim.keymap.set({ 'n', 't' }, '<C-1>', function()
+    M.go_to_workspace_by_index(1)
+  end, { desc = 'Go to workspace 1' })
+  vim.keymap.set({ 'n', 't' }, '<C-2>', function()
+    M.go_to_workspace_by_index(2)
+  end, { desc = 'Go to workspace 2' })
+  vim.keymap.set({ 'n', 't' }, '<C-3>', function()
+    M.go_to_workspace_by_index(3)
+  end, { desc = 'Go to workspace 3' })
+  vim.keymap.set({ 'n', 't' }, '<C-4>', function()
+    M.go_to_workspace_by_index(4)
+  end, { desc = 'Go to workspace 4' })
+  vim.keymap.set({ 'n', 't' }, '<C-5>', function()
+    M.go_to_workspace_by_index(5)
+  end, { desc = 'Go to workspace 5' })
+  vim.keymap.set({ 'n', 't' }, '<C-6>', function()
+    M.go_to_workspace_by_index(6)
+  end, { desc = 'Go to workspace 6' })
+  vim.keymap.set({ 'n', 't' }, '<C-7>', function()
+    M.go_to_workspace_by_index(7)
+  end, { desc = 'Go to workspace 7' })
+  vim.keymap.set({ 'n', 't' }, '<C-8>', function()
+    M.go_to_workspace_by_index(8)
+  end, { desc = 'Go to workspace 8' })
+  vim.keymap.set({ 'n', 't' }, '<C-9>', function()
+    M.go_to_workspace_by_index(9)
+  end, { desc = 'Go to workspace 9' })
+  vim.keymap.set({ 'n', 't' }, '<C-0>', function()
+    M.go_to_workspace_by_index(10)
+  end, { desc = 'Go to workspace 10' })
 
   -- Move tab: left/right
-  vim.keymap.set({'n', 't'}, '<C-S-h>', M.move_tab_left, {desc='Move tab left'})
-  vim.keymap.set({'n', 't'}, '<C-S-l>', M.move_tab_right, {desc='Move tab right'})
+  vim.keymap.set({ 'n', 't' }, '<C-S-h>', M.move_tab_left, { desc = 'Move tab left' })
+  vim.keymap.set({ 'n', 't' }, '<C-S-l>', M.move_tab_right, { desc = 'Move tab right' })
 
   -- Move tab: to workspace 1 -> 10
-  vim.keymap.set({'n', 't'}, '<C-!>', function() M.move_tab_to_workspace(1) end, {desc='Move tab to workspace 1'})
-  vim.keymap.set({'n', 't'}, '<C-@>', function() M.move_tab_to_workspace(2) end, {desc='Move tab to workspace 2'})
-  vim.keymap.set({'n', 't'}, '<C-#>', function() M.move_tab_to_workspace(3) end, {desc='Move tab to workspace 3'})
-  vim.keymap.set({'n', 't'}, '<C-$>', function() M.move_tab_to_workspace(4) end, {desc='Move tab to workspace 4'})
-  vim.keymap.set({'n', 't'}, '<C-%>', function() M.move_tab_to_workspace(5) end, {desc='Move tab to workspace 5'})
-  vim.keymap.set({'n', 't'}, '<C-^>', function() M.move_tab_to_workspace(6) end, {desc='Move tab to workspace 6'})
-  vim.keymap.set({'n', 't'}, '<C-&>', function() M.move_tab_to_workspace(7) end, {desc='Move tab to workspace 7'})
-  vim.keymap.set({'n', 't'}, '<C-*>', function() M.move_tab_to_workspace(8) end, {desc='Move tab to workspace 8'})
-  vim.keymap.set({'n', 't'}, '<C-(>', function() M.move_tab_to_workspace(9) end, {desc='Move tab to workspace 9'})
-  vim.keymap.set({'n', 't'}, '<C-)>', function() M.move_tab_to_workspace(10) end, {desc='Move tab to workspace 10'})
+  vim.keymap.set({ 'n', 't' }, '<C-!>', function()
+    M.move_tab_to_workspace(1)
+  end, { desc = 'Move tab to workspace 1' })
+  vim.keymap.set({ 'n', 't' }, '<C-@>', function()
+    M.move_tab_to_workspace(2)
+  end, { desc = 'Move tab to workspace 2' })
+  vim.keymap.set({ 'n', 't' }, '<C-#>', function()
+    M.move_tab_to_workspace(3)
+  end, { desc = 'Move tab to workspace 3' })
+  vim.keymap.set({ 'n', 't' }, '<C-$>', function()
+    M.move_tab_to_workspace(4)
+  end, { desc = 'Move tab to workspace 4' })
+  vim.keymap.set({ 'n', 't' }, '<C-%>', function()
+    M.move_tab_to_workspace(5)
+  end, { desc = 'Move tab to workspace 5' })
+  vim.keymap.set({ 'n', 't' }, '<C-^>', function()
+    M.move_tab_to_workspace(6)
+  end, { desc = 'Move tab to workspace 6' })
+  vim.keymap.set({ 'n', 't' }, '<C-&>', function()
+    M.move_tab_to_workspace(7)
+  end, { desc = 'Move tab to workspace 7' })
+  vim.keymap.set({ 'n', 't' }, '<C-*>', function()
+    M.move_tab_to_workspace(8)
+  end, { desc = 'Move tab to workspace 8' })
+  vim.keymap.set({ 'n', 't' }, '<C-(>', function()
+    M.move_tab_to_workspace(9)
+  end, { desc = 'Move tab to workspace 9' })
+  vim.keymap.set({ 'n', 't' }, '<C-)>', function()
+    M.move_tab_to_workspace(10)
+  end, { desc = 'Move tab to workspace 10' })
 
   vim.api.nvim_create_autocmd('TabNew', {
     callback = function()
       M.add_tab_to_workspace()
       M.recompute_tabline_workspaces()
     end,
-    group = vim.api.nvim_create_augroup('tabnv_workspace_tabnew', {clear = true}),
+    group = vim.api.nvim_create_augroup('tabnv_workspace_tabnew', { clear = true }),
   })
 
   vim.api.nvim_create_autocmd('TabEnter', {
@@ -134,14 +209,14 @@ function M.setup(config)
       M.recompute_tabline_workspaces()
       M.update_window_title()
     end,
-    group = vim.api.nvim_create_augroup('tabnv_workspace_tabenter', {clear = true}),
+    group = vim.api.nvim_create_augroup('tabnv_workspace_tabenter', { clear = true }),
   })
 
   vim.api.nvim_create_autocmd('TabClosedPre', {
     callback = function()
       M.remove_tab_from_workspace()
     end,
-    group = vim.api.nvim_create_augroup('tabnv_workspace_tabclosedpre', {clear = true}),
+    group = vim.api.nvim_create_augroup('tabnv_workspace_tabclosedpre', { clear = true }),
   })
 
   vim.api.nvim_create_autocmd('DirChanged', {
@@ -151,7 +226,7 @@ function M.setup(config)
       vim.cmd('redrawstatus')
       M.update_window_title()
     end,
-    group = vim.api.nvim_create_augroup('tabnv_workspace_dirchanged', {clear = true}),
+    group = vim.api.nvim_create_augroup('tabnv_workspace_dirchanged', { clear = true }),
   })
 end
 
@@ -177,7 +252,8 @@ function M.update_window_title()
   local workspace_name = M.get_active_workspace_name()
   local tab_name = u.get_tab_name()
   local title = workspace_name ~= '' and (workspace_name .. ': ' .. tab_name) or tab_name
-  vim.opt.titlestring = (vim.g.tabnv_window_prefix and (vim.g.tabnv_window_prefix .. ': ') or '') .. title
+  vim.opt.titlestring = (vim.g.tabnv_window_prefix and (vim.g.tabnv_window_prefix .. ': ') or '')
+    .. title
 end
 
 --- Show a prompt to rename the active workspace.
@@ -213,15 +289,13 @@ function M.recompute_tabline_tabs()
         local highlight = tab == current_tab and '%#TabLineSel#' or '%#TabLine#'
         local display_name = name == '[No Name]' and '' or name
         if display_name == '' then
-          display_name = u.replace_home_with_tilde(
-            vim.fn.getcwd(-1, vim.api.nvim_tabpage_get_number(tab)))
+          display_name =
+            u.replace_home_with_tilde(vim.fn.getcwd(-1, vim.api.nvim_tabpage_get_number(tab)))
         end
-        local tab_index = M.config.show_tab_index_superscript and (u.to_superscript(index) .. ' ') or ''
-        local label = string.format(
-          '%s%s [%s] %%*',
-          highlight,
-          tab_index,
-          display_name:gsub('%%', '%%%%'))
+        local tab_index = M.config.show_tab_index_superscript and (u.to_superscript(index) .. ' ')
+          or ''
+        local label =
+          string.format('%s%s [%s] %%*', highlight, tab_index, display_name:gsub('%%', '%%%%'))
         table.insert(tabs, label)
       end
     end
@@ -248,11 +322,10 @@ function M.recompute_tabline_workspaces()
   local workspace_ids = vim.tbl_keys(workspaces)
   table.sort(workspace_ids)
 
-  M.state.cached_tabline_workspaces = table.concat(
-    vim.tbl_map(function(id)
-      local highlight = id == M.state.active_workspace.id and '%#Directory#' or '%#Whitespace#'
-      return string.format('%s %s %%*', highlight, id)
-    end, workspace_ids))
+  M.state.cached_tabline_workspaces = table.concat(vim.tbl_map(function(id)
+    local highlight = id == M.state.active_workspace.id and '%#Directory#' or '%#Whitespace#'
+    return string.format('%s %s %%*', highlight, id)
+  end, workspace_ids))
   M.recompute_tabline_tabs()
 end
 
@@ -536,7 +609,9 @@ function M.go_to_prev_workspace()
 
   M.state.previous_workspace = M.state.active_workspace
   M.state.active_workspace = workspaces[workspace_ids[#workspace_ids]]
-  vim.api.nvim_set_current_tabpage(M.get_workspace_target_tab(workspaces[workspace_ids[#workspace_ids]]))
+  vim.api.nvim_set_current_tabpage(
+    M.get_workspace_target_tab(workspaces[workspace_ids[#workspace_ids]])
+  )
 end
 
 function M.go_to_next_workspace()

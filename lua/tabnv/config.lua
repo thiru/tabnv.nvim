@@ -29,11 +29,11 @@ M.config = {
       enabled = true,
       patterns = {
         'password:$',
-        '^Enter passphrase for key.*:$'
+        '^Enter passphrase for key.*:$',
       },
     },
-    picker = 'auto'
-  }
+    picker = 'auto',
+  },
 }
 
 return M.config

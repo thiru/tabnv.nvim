@@ -51,7 +51,8 @@ function M.get_tab_name(tab)
 
   -- Show command if one is running:
   local tab_cmd_ok, tab_cmd = pcall(vim.api.nvim_tabpage_get_var, tab, 'tab_cmd')
-  local user_def_tab_name_ok, user_def_tab_name = pcall(vim.api.nvim_tabpage_get_var, tab, 'user_def_tab_name')
+  local user_def_tab_name_ok, user_def_tab_name =
+    pcall(vim.api.nvim_tabpage_get_var, tab, 'user_def_tab_name')
   if tab_cmd_ok and M.is_non_empty_string(tab_cmd) then
     if user_def_tab_name_ok and M.is_non_empty_string(user_def_tab_name) then
       return ('%s: %s'):format(user_def_tab_name, tab_cmd)
@@ -74,7 +75,7 @@ function M.get_tab_name(tab)
   local win = vim.api.nvim_tabpage_get_win(tab)
   local buf = vim.api.nvim_win_get_buf(win)
   local bufname = vim.api.nvim_buf_get_name(buf)
-  return bufname:match("([^/\\]+)$") or "[No Name]"
+  return bufname:match('([^/\\]+)$') or '[No Name]'
 end
 
 --- Set a tab's name to what is given.
@@ -112,8 +113,8 @@ end
 ---@param b string
 ---@return boolean diff
 function M.sort_alpha_before_number(a, b)
-  local a_is_alphabetic = string.match(a, "^%a")
-  local b_is_alphabetic = string.match(b, "^%a")
+  local a_is_alphabetic = string.match(a, '^%a')
+  local b_is_alphabetic = string.match(b, '^%a')
 
   if a_is_alphabetic and not b_is_alphabetic then
     return true
@@ -139,8 +140,8 @@ function M.buffer_tabs(tab)
         name = vim.api.nvim_buf_get_name(buf_id),
         is_valid = vim.api.nvim_buf_is_valid(buf_id),
         is_loaded = vim.api.nvim_buf_is_loaded(buf_id),
-        is_modified = vim.api.nvim_get_option_value('modified', {buf=buf_id}),
-        is_listed = vim.api.nvim_get_option_value('buflisted', {buf=buf_id}),
+        is_modified = vim.api.nvim_get_option_value('modified', { buf = buf_id }),
+        is_listed = vim.api.nvim_get_option_value('buflisted', { buf = buf_id }),
         -- filetype = vim.api.nvim_get_option_value('filetype', {buf=buf_id}),
         -- line_count = vim.api.nvim_buf_line_count(buf_id)
       }
@@ -191,14 +192,18 @@ function M.restore_tab_mode_and_coord()
   if last_mode == 't' and cur_mode ~= 't' then
     vim.api.nvim_feedkeys('i', 'n', false)
   elseif (last_mode == 'n' or last_mode == 'nt') and cur_mode ~= 'n' and cur_mode ~= 'nt' then
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-\\><C-n>', true, false, true), 'n', false)
+    vim.api.nvim_feedkeys(
+      vim.api.nvim_replace_termcodes('<C-\\><C-n>', true, false, true),
+      'n',
+      false
+    )
 
     local last_line_ok, last_line = pcall(vim.api.nvim_tabpage_get_var, 0, 'lastline')
     local last_col_ok, last_col = pcall(vim.api.nvim_tabpage_get_var, 0, 'lastcol')
     if last_line_ok and last_col_ok then
       -- vim.notify('restoring coord=' .. last_line .. ',' .. last_col) -- DEBUG
       vim.schedule(function()
-        vim.api.nvim_win_set_cursor(0, {last_line, last_col})
+        vim.api.nvim_win_set_cursor(0, { last_line, last_col })
       end)
     else
       vim.notify('tabnv: last coords not found for current tab', vim.log.levels.ERROR)
@@ -208,18 +213,18 @@ end
 
 function M.to_superscript(val)
   local str = tostring(val)
-  local superscripts = { '⁰','¹','²','³','⁴','⁵','⁶','⁷','⁸','⁹' }
+  local superscripts = { '⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹' }
   local out = {}
   for i = 1, #str do
     local ch = str:sub(i, i)
     if ch == '-' then
-      table.insert(out, '⁻')   -- superscript minus sign (U+207B)
+      table.insert(out, '⁻') -- superscript minus sign (U+207B)
     else
       local digit = tonumber(ch)
       if digit then
         table.insert(out, superscripts[digit + 1])
       else
-        table.insert(out, ch)   -- fallback (should not happen)
+        table.insert(out, ch) -- fallback (should not happen)
       end
     end
   end
@@ -228,12 +233,12 @@ end
 
 function M.to_subscript(val)
   local str = tostring(val)
-  local subscripts = { '₀','₁','₂','₃','₄','₅','₆','₇','₈','₉' }
+  local subscripts = { '₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉' }
   local out = {}
   for i = 1, #str do
     local ch = str:sub(i, i)
     if ch == '-' then
-      table.insert(out, '₋')   -- subscript minus sign (U+208B)
+      table.insert(out, '₋') -- subscript minus sign (U+208B)
     else
       local digit = tonumber(ch)
       if digit then
