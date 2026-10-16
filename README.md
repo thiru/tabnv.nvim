@@ -50,9 +50,8 @@ require('tabnv').setup()
 }
 ```
 
-optional dependency if using the SSH picker (pick one):
+optional dependency if using the SSH picker:
 - [telescope](https://github.com/nvim-telescope/telescope.nvim)
-- [fzf-lua](https://github.com/ibhagwan/fzf-lua)
 
 ### usage
 
@@ -154,9 +153,6 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
         '^Enter passphrase for key.*:$',
       },
     },
-
-    -- picker backend: 'auto' (try telescope first, then fzf-lua), 'telescope', or 'fzf-lua'
-    picker = 'auto',
   },
 }
 ```
@@ -210,7 +206,7 @@ the module exposes functions for use in your tabline:
 #### ssh connection picker
 
 - the ssh picker parses `~/.ssh/config` and `~/.ssh/known_hosts` and lets you quickly connect to any host
-- it supports **telescope.nvim** and **fzf-lua**
+- it uses **telescope.nvim**
 - start the picker with `<leader>s` or by running
   - `:SshPicker`
 - the default action (`<CR>`) will replace the current buffer

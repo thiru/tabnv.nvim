@@ -1,4 +1,4 @@
---- Picker module for SSH connections. Supports telescope.nvim and fzf-lua.
+--- Picker module for SSH connections using telescope.nvim.
 
 local M = {}
 
@@ -27,30 +27,19 @@ M.get_user_sel_host = function()
   return M.selected_host
 end
 
---- Open the SSH picker with the appropriate backend.
+--- Open the SSH picker.
 ---@param opts table? Options for the picker
 M.picker = function(opts)
   opts = opts or {}
   M.selected_host = ''
 
-  local picker = M.config.picker or 'auto'
-
-  -- Check picker availability upfront
   local has_telescope = pcall(require, 'telescope.actions.state')
-  local has_fzf_lua = pcall(require, 'fzf-lua')
 
-  if (picker == 'telescope' or picker == 'auto') and has_telescope then
+  if has_telescope then
     M.picker_telescope(opts)
-  elseif (picker == 'fzf-lua' or picker == 'auto') and has_fzf_lua then
-    M.picker_fzf_lua()
-  elseif picker == 'auto' then
-    vim.notify(
-      'SSH picker requires telescope.nvim or fzf-lua. Install one or set ssh.picker in config.',
-      vim.log.levels.ERROR
-    )
   else
     vim.notify(
-      'SSH picker backend "' .. picker .. '" is configured in ssh.picker but not installed.',
+      'SSH picker requires telescope.nvim. Install it to use the SSH picker.',
       vim.log.levels.ERROR
     )
   end
@@ -101,40 +90,6 @@ M.picker_telescope = function(opts)
       end,
     })
     :find()
-end
-
-M.picker_fzf_lua = function()
-  local fzf_lua = require('fzf-lua')
-
-  fzf_lua.fzf_exec(ssh_parser.parse_hosts(), {
-    prompt = 'SSH Picker ',
-    actions = {
-      ['default'] = function(selected)
-        if selected and #selected > 0 then
-          M.selected_host = selected[1]
-          M.on_picker_action('this')
-        end
-      end,
-      ['ctrl-t'] = function(selected)
-        if selected and #selected > 0 then
-          M.selected_host = selected[1]
-          M.on_picker_action('tab')
-        end
-      end,
-      ['ctrl-s'] = function(selected)
-        if selected and #selected > 0 then
-          M.selected_host = selected[1]
-          M.on_picker_action('split')
-        end
-      end,
-      ['ctrl-v'] = function(selected)
-        if selected and #selected > 0 then
-          M.selected_host = selected[1]
-          M.on_picker_action('vsplit')
-        end
-      end,
-    },
-  })
 end
 
 return M
