@@ -1,4 +1,4 @@
-local u = require('tabnv.utils')
+--- Domain-agnostic helper functions.
 
 local M = {}
 

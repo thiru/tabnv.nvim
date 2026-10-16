@@ -55,6 +55,8 @@ end
 
 --- Get the appropriate shell command to start an SSH connection based on whether the user would
 --- like to make use of the auto-reconnect option.
+---@param host string The hostname
+---@param bufnr string The respective buffer number
 ---@return string cmd A posix-compliant shell command
 M.get_ssh_cmd = function(host, bufnr)
   local cmd = 'ssh "' .. host .. '"'

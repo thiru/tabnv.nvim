@@ -74,7 +74,7 @@ function M.create_usercmds()
   end, {})
 end
 
---- Create various auto-commands to provide a more seamless experience such as:
+--- Create various auto-commands to provide a more seamless experience
 function M.create_autocmds()
   -- NOTE: use these two autocmds to save and restore terminal tab mode & coord
   vim.api.nvim_create_autocmd('WinLeave', {

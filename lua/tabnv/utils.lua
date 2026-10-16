@@ -1,4 +1,4 @@
---- Various domain-agnostic utilities.
+--- Utility functions.
 
 local M = {}
 
@@ -45,7 +45,7 @@ function M.replace_home_with_tilde(path)
 end
 
 --- Get the name of the respective tab.
----@param tab any A tab page handle
+---@param tab number A tab page handle
 function M.get_tab_name(tab)
   tab = tab or vim.api.nvim_get_current_tabpage()
 
@@ -104,9 +104,10 @@ function M.is_terminal_buf()
   return type(vim.fn.getbufvar(vim.fn.bufnr(), 'terminal_job_id')) == 'number'
 end
 
---- Sort the given such that strings starting with alphabetic characters precede those starting
---- with numeric characters.
---- This is useful for the SSH picker as we probably want named connections to be more visible that IP addresses.
+--- Sort the given strings such that strings starting with alphabetic characters precede those
+--- starting with numeric characters.
+--- This is useful for the SSH picker as we probably want named connections to be more visible that
+--- IP addresses.
 ---@param a string
 ---@param b string
 ---@return boolean diff

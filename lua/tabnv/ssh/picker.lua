@@ -9,7 +9,7 @@ M.selected_host = ''
 --- Setup the picker.
 ---@param config table SSH config (tabnv.Config.ssh)
 ---@param on_picker_action fun(target: string) This function is run when a picker selection is made
----@see tabnv.ssh.laucher.open_ssh_terminal
+---@see tabnv.ssh.launcher.open_ssh_terminal
 M.setup = function(config, on_picker_action)
   M.on_picker_action = on_picker_action
   M.config = config

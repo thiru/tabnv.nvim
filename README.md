@@ -183,17 +183,9 @@ the module exposes functions for use in your tabline:
 - `require('tabnv.workspace').tabline_workspaces()`
   – returns statusline-formatted workspace labels like `1 2`, indicating that
   there are two workspaces; the active workspace is highlighted with
-  `TabnvWorkspaceActive` (linked to `IncSearch` by default)
 - `require('tabnv.workspace').tabline_tabs()`
   – returns statusline-formatted text for the tabs in the active workspace
   - the active tab is highlighted with `TabLineSel`
-
-#### automatic tab naming
-
-- tabs are automatically named after their current working directory
-- if a terminal's directory changes (via `cd` or OSC 7 escape sequences), the tab name updates accordingly
-- if you manually rename a tab (e.g. via  `<leader>r`), the automatic naming is disabled for that tab
-and your custom name is preserved.
 
 #### window title
 
@@ -201,11 +193,6 @@ and your custom name is preserved.
   - an optional window prefix (set via `<leader>p`)
   - the active workspace name
   - the tab name itself
-
-#### floating terminal
-
-- a centred, floating terminal window can be opened with `<leader>f`
-- this is useful for quick commands without leaving your current layout
 
 #### osc 7 directory change support
 
@@ -216,11 +203,6 @@ and your custom name is preserved.
 #### process completion notification
 
 - when a command finishes in an unfocused terminal tab, notify user (relies on *OSC 133 escape sequence*)
-
-#### auto-close empty tabs
-
-- when you exit a shell in a terminal tab (TermLeave), the tab is automatically closed if it's empty
-- if it's the last tab, neovim quits entirely
 
 #### tab mode and cursor position preservation
 
