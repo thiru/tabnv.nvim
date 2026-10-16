@@ -32,7 +32,6 @@ local M = {
 }
 
 function M.setup(config)
-  M.config = config
   M.state.all_workspaces[1] = new_workspace(1)
   M.state.active_workspace = M.state.all_workspaces[1]
   M.add_tab_to_workspace()
@@ -281,7 +280,7 @@ function M.recompute_tabline_tabs()
   local tabs = {}
   local valid_tab_count = 0
 
-  for index, tab in ipairs(workspace.tabs or {}) do
+  for _, tab in ipairs(workspace.tabs or {}) do
     if vim.api.nvim_tabpage_is_valid(tab) then
       valid_tab_count = valid_tab_count + 1
       local ok, name = pcall(u.get_tab_name, tab)
@@ -292,10 +291,7 @@ function M.recompute_tabline_tabs()
           display_name =
             u.replace_home_with_tilde(vim.fn.getcwd(-1, vim.api.nvim_tabpage_get_number(tab)))
         end
-        local tab_index = M.config.show_tab_index_superscript and (u.to_superscript(index) .. ' ')
-          or ''
-        local label =
-          string.format('%s%s [%s] %%*', highlight, tab_index, display_name:gsub('%%', '%%%%'))
+        local label = string.format('%s [%s] %%*', highlight, display_name:gsub('%%', '%%%%'))
         table.insert(tabs, label)
       end
     end
@@ -327,22 +323,6 @@ function M.recompute_tabline_workspaces()
     return string.format('%s %s %%*', highlight, id)
   end, workspace_ids))
   M.recompute_tabline_tabs()
-end
-
-function M.get_active_tab_idx()
-  local tabs = M.state.active_workspace and M.state.active_workspace.tabs or {}
-  local curr_tab = vim.api.nvim_get_current_tabpage()
-
-  for i = 1, #tabs do
-    if tabs[i] == curr_tab then
-      return i
-    end
-  end
-
-  -- The tab currently displayed is not part of the active workspace's list
-  -- (e.g. a stale workspace hasn't been reconciled yet). Return 0 so the
-  -- statusline doesn't misrepresent the position.
-  return 0
 end
 
 --- Remove the given tab from every workspace's tab list and clear any

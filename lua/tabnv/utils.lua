@@ -176,7 +176,6 @@ function M.save_tab_mode_and_coord()
   local coord = vim.api.nvim_win_get_cursor(0)
   vim.api.nvim_tabpage_set_var(tab, 'lastline', coord[1])
   vim.api.nvim_tabpage_set_var(tab, 'lastcol', coord[2])
-  -- vim.notify('tabnv: saved tab ' .. tab .. ', mode=' .. mode .. ', coord=' .. coord[1] .. ',' .. coord[2]) -- DEBUG
 end
 
 function M.restore_tab_mode_and_coord()
@@ -201,7 +200,6 @@ function M.restore_tab_mode_and_coord()
     local last_line_ok, last_line = pcall(vim.api.nvim_tabpage_get_var, 0, 'lastline')
     local last_col_ok, last_col = pcall(vim.api.nvim_tabpage_get_var, 0, 'lastcol')
     if last_line_ok and last_col_ok then
-      -- vim.notify('restoring coord=' .. last_line .. ',' .. last_col) -- DEBUG
       vim.schedule(function()
         vim.api.nvim_win_set_cursor(0, { last_line, last_col })
       end)
@@ -209,46 +207,6 @@ function M.restore_tab_mode_and_coord()
       vim.notify('tabnv: last coords not found for current tab', vim.log.levels.ERROR)
     end
   end
-end
-
-function M.to_superscript(val)
-  local str = tostring(val)
-  local superscripts = { '⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹' }
-  local out = {}
-  for i = 1, #str do
-    local ch = str:sub(i, i)
-    if ch == '-' then
-      table.insert(out, '⁻') -- superscript minus sign (U+207B)
-    else
-      local digit = tonumber(ch)
-      if digit then
-        table.insert(out, superscripts[digit + 1])
-      else
-        table.insert(out, ch) -- fallback (should not happen)
-      end
-    end
-  end
-  return table.concat(out)
-end
-
-function M.to_subscript(val)
-  local str = tostring(val)
-  local subscripts = { '₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉' }
-  local out = {}
-  for i = 1, #str do
-    local ch = str:sub(i, i)
-    if ch == '-' then
-      table.insert(out, '₋') -- subscript minus sign (U+208B)
-    else
-      local digit = tonumber(ch)
-      if digit then
-        table.insert(out, subscripts[digit + 1])
-      else
-        table.insert(out, ch)
-      end
-    end
-  end
-  return table.concat(out)
 end
 
 return M
