@@ -291,7 +291,13 @@ function M.recompute_tabline_tabs()
           display_name =
             u.replace_home_with_tilde(vim.fn.getcwd(-1, vim.api.nvim_tabpage_get_number(tab)))
         end
-        local label = string.format('%s [%s] %%*', highlight, display_name:gsub('%%', '%%%%'))
+        local icon = u.is_terminal_tab(tab) and ' ' or '󰈙 '
+        local label = string.format(
+          '%s %s%s %%*',
+          highlight,
+          icon,
+          display_name:gsub('%%', '%%%%')
+        )
         table.insert(tabs, label)
       end
     end

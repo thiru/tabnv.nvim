@@ -44,6 +44,15 @@ function M.replace_home_with_tilde(path)
   end
 end
 
+function M.set_terminal_tab_var()
+  vim.api.nvim_tabpage_set_var(0, 'is_terminal_tab', true)
+end
+
+function M.is_terminal_tab(tab)
+  local is_terminal_tab_ok, is_terminal_tab = pcall(vim.api.nvim_tabpage_get_var, tab, 'is_terminal_tab')
+  return is_terminal_tab_ok and is_terminal_tab
+end
+
 --- Get the name of the respective tab.
 ---@param tab number A tab page handle
 function M.get_tab_name(tab)

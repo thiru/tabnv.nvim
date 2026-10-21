@@ -288,6 +288,7 @@ end
 --- Create a new tab with a terminal and enter insert mode.
 function M.new_tab()
   vim.cmd('tabnew')
+  u.set_terminal_tab_var()
   M.set_term_opts()
   vim.cmd.terminal()
   vim.cmd.startinsert()
