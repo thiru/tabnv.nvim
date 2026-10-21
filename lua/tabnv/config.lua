@@ -4,6 +4,7 @@ local M = {}
 
 ---@class tabnv.Config
 ---@field leader string? Most keybinds will be prefixed with this key sequence.
+---@field default_keymaps_enabled boolean? Whether to define the plugin's default keybinds.
 ---@field neovide_term_opacity number? Optional opacity to use for terminal tabs if running within Neovide.
 ---@field neovide_non_term_opacity number? Optional opacity to use for non-terminal tabs if running within Neovide.
 ---@field on_tab_changed function? If specified, this function will be called when the tab changes. It takes one parameter which indicates whether the current tab is a terminal mode tab.
@@ -15,6 +16,7 @@ local M = {}
 ---@field ssh.password_detection.patterns string[]? Lua patterns used to detect an SSH authentication request
 M.config = {
   leader = '<leader><leader>',
+  default_keymaps_enabled = true,
   neovide_term_opacity = nil,
   neovide_non_term_opacity = nil,
   on_tab_changed = nil,

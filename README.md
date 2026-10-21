@@ -130,6 +130,9 @@ nvim +TabnvStart --cmd 'lua vim.g.tabnv_auto_start_cmd = "htop"'
   -- this avoids conflicts with nested vim instances (similar to tmux's Ctrl-B)
   leader = '<leader><leader>',
 
+  -- set to false to prevent tabnv from setting any keybinds
+  default_keymaps_enabled = true,
+
   -- callback invoked on tab change
   on_tab_changed = nil,
 

@@ -320,6 +320,10 @@ end
 
 --- Define key bindings. These are mostly leader-key-based.
 function M.set_keybinds()
+  if not M.config.default_keymaps_enabled then
+    return
+  end
+
   -- New buffer tab
   vim.keymap.set({ 'n', 't' }, '<C-t>', '<CMD>tabnew<CR>', { desc = 'New editor (tab)' })
 
