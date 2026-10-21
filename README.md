@@ -211,7 +211,7 @@ the module exposes functions for use in your tabline:
 - the ssh picker parses `~/.ssh/config` and `~/.ssh/known_hosts` and lets you quickly connect to any host
 - it uses **telescope.nvim**
 - start the picker with `<leader>s` or by running
-  - `:SshPicker`
+  - `:TabnvSshPicker`
 - the default action (`<CR>`) will replace the current buffer
 - alternative actions let you open the connection in a
   - **new tab** (`<C-t>`)

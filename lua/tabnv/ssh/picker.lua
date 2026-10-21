@@ -15,7 +15,7 @@ M.setup = function(config, on_picker_action)
   M.config = config
 
   vim.api.nvim_create_user_command(
-    'SshPicker',
+    'TabnvSshPicker',
     M.picker,
     { bang = true, desc = 'Open SSH connection picker' }
   )

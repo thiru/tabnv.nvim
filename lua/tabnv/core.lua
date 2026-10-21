@@ -371,7 +371,7 @@ function M.set_keybinds()
   vim.keymap.set(
     'n',
     M.config.leader .. 's',
-    '<CMD>SshPicker<CR>',
+    '<CMD>TabnvSshPicker<CR>',
     { desc = 'Launch [S]SH connection picker' }
   )
 
