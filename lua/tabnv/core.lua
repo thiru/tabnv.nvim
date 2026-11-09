@@ -19,6 +19,36 @@ function M.setup(config)
   ws.setup(config)
 end
 
+--- Start or stop the tabline spinner based on active OSC 133 commands.
+function M.update_process_animation()
+  local running = false
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    local tab = vim.b[bufnr].tabnv_osc133_start_tab
+    if tab and vim.api.nvim_tabpage_is_valid(tab) then
+      running = true
+      break
+    end
+  end
+
+  local timer = M.state.process_spinner_timer
+  if running and not timer then
+    timer = vim.uv.new_timer()
+    M.state.process_spinner_timer = timer
+    timer:start(60, 60, vim.schedule_wrap(function()
+      if M.state.process_spinner_timer == timer then
+        ws.advance_process_spinner()
+      end
+    end))
+  elseif not running and timer then
+    M.state.process_spinner_timer = nil
+    timer:stop()
+    timer:close()
+  end
+
+  ws.recompute_tabline_workspaces()
+  vim.cmd('redrawtabline')
+end
+
 function M.save_original_opts()
   M.state.original_opts = {
     background = vim.opt.background:get(),
@@ -100,6 +130,25 @@ function M.create_autocmds()
       ws.update_window_title()
     end,
     group = vim.api.nvim_create_augroup('tabnv_bufenter', { clear = true }),
+  })
+
+  vim.api.nvim_create_autocmd({ 'BufWipeout', 'TabClosed' }, {
+    callback = function()
+      vim.schedule(M.update_process_animation)
+    end,
+    group = vim.api.nvim_create_augroup('tabnv_process_cleanup', { clear = true }),
+  })
+
+  vim.api.nvim_create_autocmd('VimLeavePre', {
+    callback = function()
+      local timer = M.state.process_spinner_timer
+      M.state.process_spinner_timer = nil
+      if timer then
+        timer:stop()
+        timer:close()
+      end
+    end,
+    group = vim.api.nvim_create_augroup('tabnv_process_vimleave', { clear = true }),
   })
 
   vim.api.nvim_create_autocmd('TabEnter', {
@@ -196,10 +245,9 @@ function M.create_autocmds()
             -- Store the command name separately so the original tab name is
             -- preserved while the command is running.
             u.set_tab_name(cmd, start_tab, true, M.config.tab_name_as_command_max_length)
-            ws.recompute_tabline_tabs()
-            vim.cmd('redraw!')
           end
         end
+        M.update_process_animation()
         return
       elseif marker == 'D' then
         -- Command finished (optionally reporting the exit status)
@@ -245,11 +293,9 @@ function M.handle_process_complete(bufnr, exit_code, cmd)
   -- Clear the temporary command name after the command has finished.
   if start_tab and vim.api.nvim_tabpage_is_valid(start_tab) then
     u.clear_command_name(start_tab)
-    ws.recompute_tabline_tabs()
-    vim.cmd('redrawtabline')
   end
-
   vim.b[bufnr].tabnv_osc133_start_tab = nil
+  M.update_process_animation()
 
   -- Ensure we're looking at the same command/tab
   local start_tab_ok = false
