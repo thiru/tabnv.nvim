@@ -19,32 +19,8 @@ function M.setup(config)
   ws.setup(config)
 end
 
---- Start or stop the tabline spinner based on active OSC 133 commands.
-function M.update_process_animation()
-  local running = false
-  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    local tab = vim.b[bufnr].tabnv_osc133_start_tab
-    if tab and vim.api.nvim_tabpage_is_valid(tab) then
-      running = true
-      break
-    end
-  end
-
-  local timer = M.state.process_spinner_timer
-  if running and not timer then
-    timer = vim.uv.new_timer()
-    M.state.process_spinner_timer = timer
-    timer:start(60, 60, vim.schedule_wrap(function()
-      if M.state.process_spinner_timer == timer then
-        ws.advance_process_spinner()
-      end
-    end))
-  elseif not running and timer then
-    M.state.process_spinner_timer = nil
-    timer:stop()
-    timer:close()
-  end
-
+--- Refresh process indicators in the tabline.
+function M.update_process_indicator()
   ws.recompute_tabline_workspaces()
   vim.cmd('redrawtabline')
 end
@@ -134,21 +110,9 @@ function M.create_autocmds()
 
   vim.api.nvim_create_autocmd({ 'BufWipeout', 'TabClosed' }, {
     callback = function()
-      vim.schedule(M.update_process_animation)
+      vim.schedule(M.update_process_indicator)
     end,
     group = vim.api.nvim_create_augroup('tabnv_process_cleanup', { clear = true }),
-  })
-
-  vim.api.nvim_create_autocmd('VimLeavePre', {
-    callback = function()
-      local timer = M.state.process_spinner_timer
-      M.state.process_spinner_timer = nil
-      if timer then
-        timer:stop()
-        timer:close()
-      end
-    end,
-    group = vim.api.nvim_create_augroup('tabnv_process_vimleave', { clear = true }),
   })
 
   vim.api.nvim_create_autocmd('TabEnter', {
@@ -247,7 +211,7 @@ function M.create_autocmds()
             u.set_tab_name(cmd, start_tab, true, M.config.tab_name_as_command_max_length)
           end
         end
-        M.update_process_animation()
+        M.update_process_indicator()
         return
       elseif marker == 'D' then
         -- Command finished (optionally reporting the exit status)
@@ -295,7 +259,7 @@ function M.handle_process_complete(bufnr, exit_code, cmd)
     u.clear_command_name(start_tab)
   end
   vim.b[bufnr].tabnv_osc133_start_tab = nil
-  M.update_process_animation()
+  M.update_process_indicator()
 
   -- Ensure we're looking at the same command/tab
   local start_tab_ok = false

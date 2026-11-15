@@ -1,9 +1,6 @@
 local u = require('tabnv.utils')
 
-local process_spinner_frames = {
-  '⠇', '⠃', '⠋', '⠉', '⠙', '⠘', '⠸', '⠰',
-  '⢰', '⢠', '⣠', '⣀', '⣄', '⡄', '⡆', '⠆',
-}
+local process_icon = '◉'
 
 local function cwd_name(path)
   local full_path = vim.fn.fnamemodify(path or vim.fn.getcwd(), ':p')
@@ -33,7 +30,6 @@ local M = {
     previous_workspace = nil,
     cached_tabline_workspaces = '',
     cached_tabline_tabs = '',
-    process_spinner_frame = 1,
   },
 }
 
@@ -294,13 +290,6 @@ local function workspace_has_running_process(workspace)
   return false
 end
 
---- Advance the process spinner and refresh the cached tabline labels.
-function M.advance_process_spinner()
-  M.state.process_spinner_frame = M.state.process_spinner_frame % #process_spinner_frames + 1
-  M.recompute_tabline_workspaces()
-  vim.cmd('redrawtabline')
-end
-
 --- Recompute the cached tab labels for the active workspace.
 function M.recompute_tabline_tabs()
   local workspace = M.state.active_workspace
@@ -328,13 +317,12 @@ function M.recompute_tabline_tabs()
             u.replace_home_with_tilde(vim.fn.getcwd(-1, vim.api.nvim_tabpage_get_number(tab)))
         end
         local icon = u.is_terminal_tab(tab) and ' ' or '󰈙 '
-        local spinner = running and (' ' .. process_spinner_frames[M.state.process_spinner_frame] .. ' ')
-          or ''
+        local indicator = running and (' ' .. process_icon .. ' ') or ''
         local label = string.format(
           '%s %s%s%s %%*',
           highlight,
           icon,
-          spinner,
+          indicator,
           display_name:gsub('%%', '%%%%')
         )
         table.insert(tabs, label)
@@ -343,7 +331,7 @@ function M.recompute_tabline_tabs()
   end
 
   -- Keep the usual single-tab layout compact, but reveal the label while a
-  -- process is running so its spinner remains visible.
+  -- process is running so its indicator remains visible.
   if valid_tab_count == 1 and not has_running_process then
     tabs = {}
   end
@@ -368,12 +356,12 @@ function M.recompute_tabline_workspaces()
   M.state.cached_tabline_workspaces = table.concat(vim.tbl_map(function(id)
     local workspace = workspaces[id]
     local highlight = id == M.state.active_workspace.id and '%#Directory#' or '%#Whitespace#'
-    local spinner = id ~= M.state.active_workspace.id
+    local indicator = id ~= M.state.active_workspace.id
         and workspace_has_running_process(workspace)
-        and (' ' .. process_spinner_frames[M.state.process_spinner_frame])
+        and process_icon
       or ''
-    local trailing_space = spinner == '' and ' ' or ''
-    return string.format('%s %s%s%s%%*', highlight, id, spinner, trailing_space)
+    local trailing_space = indicator == '' and ' ' or ''
+    return string.format('%s %s%s%s%%*', highlight, id, indicator, trailing_space)
   end, workspace_ids))
   M.recompute_tabline_tabs()
 end

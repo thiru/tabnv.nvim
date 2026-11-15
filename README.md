@@ -183,8 +183,8 @@ the module exposes functions for use in your tabline:
 - `require('tabnv.workspace').tabline_tabs()`
   – returns statusline-formatted text for the tabs in the active workspace
   - the active tab is highlighted with `TabLineSel`
-  - terminal tabs show an animated spinner while an OSC 133-aware shell reports a command running; a single-tab label is shown during that command so the spinner remains visible
-  - inactive workspace labels show the spinner while any tab in that workspace has a running command
+  - terminal tabs show a process icon while an OSC 133-aware shell reports a command running; a single-tab label is shown during that command so the icon remains visible
+  - inactive workspace labels show the icon while any tab in that workspace has a running command
 
 #### window title
 
@@ -201,7 +201,7 @@ the module exposes functions for use in your tabline:
 
 #### process status and completion notification
 
-- show an animated spinner in the tabline while a command is running
+- show a process icon in the tabline while a command is running
 - when a command finishes in an unfocused terminal tab, notify user
 - both features rely on shell integration emitting *OSC 133 escape sequences*
 
