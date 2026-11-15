@@ -317,9 +317,9 @@ function M.recompute_tabline_tabs()
             u.replace_home_with_tilde(vim.fn.getcwd(-1, vim.api.nvim_tabpage_get_number(tab)))
         end
         local icon = u.is_terminal_tab(tab) and ' ' or '󰈙 '
-        local indicator = running and (' ' .. process_icon .. ' ') or ''
+        local indicator = running and (process_icon .. ' ') or ''
         local label = string.format(
-          '%s %s%s%s %%*',
+          '%s %s %s%s %%*',
           highlight,
           icon,
           indicator,
