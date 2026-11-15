@@ -342,8 +342,8 @@ function M.recompute_tabline_tabs()
             u.replace_home_with_tilde(vim.fn.getcwd(-1, vim.api.nvim_tabpage_get_number(tab)))
         end
         local icon = u.is_terminal_tab(tab) and icons.terminal_tab or icons.regular_tab
-        local indicator = (running and (icons.process_running .. ' ') or '')
-          .. (agent_active and (icons.agent_running .. ' ') or '')
+        local indicator = agent_active and (icons.agent_running .. ' ')
+          or (running and (icons.process_running .. ' ') or '')
         local label = string.format(
           '%s %s %s%s %%*',
           highlight,
@@ -384,11 +384,10 @@ function M.recompute_tabline_workspaces()
     local highlight = id == M.state.active_workspace.id and '%#Directory#' or '%#Whitespace#'
     local indicator = ''
     if id ~= M.state.active_workspace.id then
-      if workspace_has_running_process(workspace) then
-        indicator = indicator .. icons.process_running
-      end
       if workspace_has_agent_activity(workspace) then
-        indicator = indicator .. icons.agent_running
+        indicator = icons.agent_running
+      elseif workspace_has_running_process(workspace) then
+        indicator = icons.process_running
       end
     end
     local trailing_space = indicator == '' and ' ' or ''
