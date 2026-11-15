@@ -189,6 +189,18 @@ function M.create_autocmds()
     callback = function(ev)
       local seq = ev.data.sequence
 
+      -- OSC 9;4 terminal progress (used by Pi/OpenCode and supported terminals).
+      local progress_state = tonumber(seq:match('^\027]9;4;(%d+)'))
+      if progress_state and progress_state >= 0 and progress_state <= 4 then
+        if progress_state == 0 then
+          vim.b[ev.buf].tabnv_osc94_active = nil
+        else
+          vim.b[ev.buf].tabnv_osc94_active = true
+        end
+        M.update_process_indicator()
+        return
+      end
+
       -- FinalTerm/FTCS (OSC 133) shell integration markers
       local marker = seq:match('^\027]133;(%a)')
       if marker == 'C' then
@@ -259,6 +271,7 @@ function M.handle_process_complete(bufnr, exit_code, cmd)
     u.clear_command_name(start_tab)
   end
   vim.b[bufnr].tabnv_osc133_start_tab = nil
+  vim.b[bufnr].tabnv_osc94_active = nil
   M.update_process_indicator()
 
   -- Ensure we're looking at the same command/tab

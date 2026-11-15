@@ -1,6 +1,7 @@
 local u = require('tabnv.utils')
 
 local process_icon = '◉'
+local agent_icon = '✦'
 
 local function cwd_name(path)
   local full_path = vim.fn.fnamemodify(path or vim.fn.getcwd(), ':p')
@@ -290,6 +291,25 @@ local function workspace_has_running_process(workspace)
   return false
 end
 
+local function tab_has_agent_activity(tab)
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tab)) do
+    local bufnr = vim.api.nvim_win_get_buf(win)
+    if vim.b[bufnr].tabnv_osc94_active then
+      return true
+    end
+  end
+  return false
+end
+
+local function workspace_has_agent_activity(workspace)
+  for _, tab in ipairs(workspace.tabs or {}) do
+    if vim.api.nvim_tabpage_is_valid(tab) and tab_has_agent_activity(tab) then
+      return true
+    end
+  end
+  return false
+end
+
 --- Recompute the cached tab labels for the active workspace.
 function M.recompute_tabline_tabs()
   local workspace = M.state.active_workspace
@@ -301,13 +321,14 @@ function M.recompute_tabline_tabs()
   local current_tab = vim.api.nvim_get_current_tabpage()
   local tabs = {}
   local valid_tab_count = 0
-  local has_running_process = false
+  local has_running_activity = false
 
   for _, tab in ipairs(workspace.tabs or {}) do
     if vim.api.nvim_tabpage_is_valid(tab) then
       valid_tab_count = valid_tab_count + 1
       local running = tab_has_running_process(tab)
-      has_running_process = has_running_process or running
+      local agent_active = tab_has_agent_activity(tab)
+      has_running_activity = has_running_activity or running or agent_active
       local ok, name = pcall(u.get_tab_name, tab)
       if ok and name then
         local highlight = tab == current_tab and '%#TabLineSel#' or '%#TabLine#'
@@ -317,7 +338,8 @@ function M.recompute_tabline_tabs()
             u.replace_home_with_tilde(vim.fn.getcwd(-1, vim.api.nvim_tabpage_get_number(tab)))
         end
         local icon = u.is_terminal_tab(tab) and ' ' or '󰈙 '
-        local indicator = running and (process_icon .. ' ') or ''
+        local indicator = (running and (process_icon .. ' ') or '')
+          .. (agent_active and (agent_icon .. ' ') or '')
         local label = string.format(
           '%s %s %s%s %%*',
           highlight,
@@ -331,8 +353,8 @@ function M.recompute_tabline_tabs()
   end
 
   -- Keep the usual single-tab layout compact, but reveal the label while a
-  -- process is running so its indicator remains visible.
-  if valid_tab_count == 1 and not has_running_process then
+  -- command or agent task is active so its indicator remains visible.
+  if valid_tab_count == 1 and not has_running_activity then
     tabs = {}
   end
 
@@ -356,10 +378,15 @@ function M.recompute_tabline_workspaces()
   M.state.cached_tabline_workspaces = table.concat(vim.tbl_map(function(id)
     local workspace = workspaces[id]
     local highlight = id == M.state.active_workspace.id and '%#Directory#' or '%#Whitespace#'
-    local indicator = id ~= M.state.active_workspace.id
-        and workspace_has_running_process(workspace)
-        and process_icon
-      or ''
+    local indicator = ''
+    if id ~= M.state.active_workspace.id then
+      if workspace_has_running_process(workspace) then
+        indicator = indicator .. process_icon
+      end
+      if workspace_has_agent_activity(workspace) then
+        indicator = indicator .. agent_icon
+      end
+    end
     local trailing_space = indicator == '' and ' ' or ''
     return string.format('%s %s%s%s%%*', highlight, id, indicator, trailing_space)
   end, workspace_ids))

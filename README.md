@@ -183,8 +183,8 @@ the module exposes functions for use in your tabline:
 - `require('tabnv.workspace').tabline_tabs()`
   – returns statusline-formatted text for the tabs in the active workspace
   - the active tab is highlighted with `TabLineSel`
-  - terminal tabs show a process icon while an OSC 133-aware shell reports a command running; a single-tab label is shown during that command so the icon remains visible
-  - inactive workspace labels show the icon while any tab in that workspace has a running command
+  - terminal tabs show a process icon while an OSC 133-aware shell reports a command running, and an agent icon while an app reports OSC 9;4 progress; a single-tab label is shown while either is active
+  - inactive workspace labels show the corresponding icon while any tab in that workspace has a running command or agent activity
 
 #### window title
 
@@ -201,9 +201,9 @@ the module exposes functions for use in your tabline:
 
 #### process status and completion notification
 
-- show a process icon in the tabline while a command is running
-- when a command finishes in an unfocused terminal tab, notify user
-- both features rely on shell integration emitting *OSC 133 escape sequences*
+- show a process icon while a command is running, based on shell integration emitting *OSC 133 escape sequences*
+- show an agent activity icon when an app emits *OSC 9;4 progress sequences* (Pi supports this via `terminal.showTerminalProgress` in `/settings`, off by default; OpenCode exposes `terminalProgressBarEnabled`)
+- when a command finishes in an unfocused terminal tab, notify user (via OSC 133)
 
 #### tab mode and cursor position preservation
 
