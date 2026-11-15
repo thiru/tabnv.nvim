@@ -1,7 +1,11 @@
 local u = require('tabnv.utils')
 
-local process_icon = '◉'
-local agent_icon = '✦'
+local icons = {
+  process_running = '◉',
+  agent_running = '✦',
+  terminal_tab = ' ',
+  regular_tab = '󰈙 ',
+}
 
 local function cwd_name(path)
   local full_path = vim.fn.fnamemodify(path or vim.fn.getcwd(), ':p')
@@ -337,9 +341,9 @@ function M.recompute_tabline_tabs()
           display_name =
             u.replace_home_with_tilde(vim.fn.getcwd(-1, vim.api.nvim_tabpage_get_number(tab)))
         end
-        local icon = u.is_terminal_tab(tab) and ' ' or '󰈙 '
-        local indicator = (running and (process_icon .. ' ') or '')
-          .. (agent_active and (agent_icon .. ' ') or '')
+        local icon = u.is_terminal_tab(tab) and icons.terminal_tab or icons.regular_tab
+        local indicator = (running and (icons.process_running .. ' ') or '')
+          .. (agent_active and (icons.agent_running .. ' ') or '')
         local label = string.format(
           '%s %s %s%s %%*',
           highlight,
@@ -381,10 +385,10 @@ function M.recompute_tabline_workspaces()
     local indicator = ''
     if id ~= M.state.active_workspace.id then
       if workspace_has_running_process(workspace) then
-        indicator = indicator .. process_icon
+        indicator = indicator .. icons.process_running
       end
       if workspace_has_agent_activity(workspace) then
-        indicator = indicator .. agent_icon
+        indicator = indicator .. icons.agent_running
       end
     end
     local trailing_space = indicator == '' and ' ' or ''
