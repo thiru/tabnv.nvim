@@ -184,7 +184,7 @@ the module exposes functions for use in your tabline:
   – returns statusline-formatted text for the tabs in the active workspace
   - the active tab is highlighted with `TabLineSel`
   - terminal tabs show a process icon while an OSC 133-aware shell reports a command running, and an agent icon while an app reports OSC 9;4 progress; a single-tab label is shown while either is active
-  - inactive workspace labels show the corresponding icon while any tab in that workspace has a running command or agent activity
+  - workspace labels show the corresponding icon, including for the active workspace, while any tab in that workspace has a running command or agent activity
 
 #### window title
 

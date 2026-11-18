@@ -383,12 +383,10 @@ function M.recompute_tabline_workspaces()
     local workspace = workspaces[id]
     local highlight = id == M.state.active_workspace.id and '%#Directory#' or '%#Whitespace#'
     local indicator = ''
-    if id ~= M.state.active_workspace.id then
-      if workspace_has_agent_activity(workspace) then
-        indicator = icons.agent_running
-      elseif workspace_has_running_process(workspace) then
-        indicator = icons.process_running
-      end
+    if workspace_has_agent_activity(workspace) then
+      indicator = icons.agent_running
+    elseif workspace_has_running_process(workspace) then
+      indicator = icons.process_running
     end
     local trailing_space = indicator == '' and ' ' or ''
     return string.format('%s %s%s%s%%*', highlight, id, indicator, trailing_space)
