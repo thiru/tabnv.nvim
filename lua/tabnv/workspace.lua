@@ -19,7 +19,22 @@ local function cwd_name(path)
 end
 
 local function new_workspace(id)
-  return { id = id, name = cwd_name(), has_custom_name = false, tabs = {} }
+  return { id = id, name = cwd_name(), has_custom_name = false, tabs = {}, recent_tabs = {} }
+end
+
+local function remember_active_tab(workspace, tab)
+  if not workspace then
+    return
+  end
+
+  workspace.recent_tabs = workspace.recent_tabs or {}
+  for i = #workspace.recent_tabs, 1, -1 do
+    if workspace.recent_tabs[i] == tab then
+      table.remove(workspace.recent_tabs, i)
+    end
+  end
+  table.insert(workspace.recent_tabs, 1, tab)
+  workspace.last_active_tab = tab
 end
 
 local function update_workspace_name(workspace, path)
@@ -33,6 +48,7 @@ local M = {
     all_workspaces = {},
     active_workspace = nil,
     previous_workspace = nil,
+    pending_tab_after_close = nil,
     cached_tabline_workspaces = '',
     cached_tabline_tabs = '',
   },
@@ -210,7 +226,7 @@ function M.setup(config)
       end
 
       if M.state.active_workspace then
-        M.state.active_workspace.last_active_tab = curr_tab
+        remember_active_tab(M.state.active_workspace, curr_tab)
         update_workspace_name(M.state.active_workspace)
       end
 
@@ -225,6 +241,21 @@ function M.setup(config)
       M.remove_tab_from_workspace()
     end,
     group = vim.api.nvim_create_augroup('tabnv_workspace_tabclosedpre', { clear = true }),
+  })
+
+  vim.api.nvim_create_autocmd('TabClosed', {
+    callback = function()
+      local tab = M.state.pending_tab_after_close
+      M.state.pending_tab_after_close = nil
+      if tab then
+        vim.schedule(function()
+          if vim.api.nvim_tabpage_is_valid(tab) then
+            vim.api.nvim_set_current_tabpage(tab)
+          end
+        end)
+      end
+    end,
+    group = vim.api.nvim_create_augroup('tabnv_workspace_tabclosed', { clear = true }),
   })
 
   vim.api.nvim_create_autocmd('DirChanged', {
@@ -411,6 +442,13 @@ function M.untrack_tab(tab)
     if ws.last_active_tab == tab then
       ws.last_active_tab = nil
     end
+    if type(ws.recent_tabs) == 'table' then
+      for i = #ws.recent_tabs, 1, -1 do
+        if ws.recent_tabs[i] == tab then
+          table.remove(ws.recent_tabs, i)
+        end
+      end
+    end
   end
 end
 
@@ -468,9 +506,11 @@ function M.add_tab_to_workspace()
   end
 
   table.insert(tabs, insert_pos, new_tab)
+  remember_active_tab(workspace, new_tab)
 end
 
 function M.remove_tab_from_workspace()
+  M.state.pending_tab_after_close = nil
   local curr_tab = vim.api.nvim_get_current_tabpage()
   local workspaces = M.state.all_workspaces
 
@@ -490,10 +530,45 @@ function M.remove_tab_from_workspace()
     end
   end
 
-  -- Remove the closing tab from every workspace's list and clear references
+  -- If this workspace has another tab, restore its most recently active tab
+  -- after Neovim performs its normal close-tab selection.
+  local restore_tab
+  if containing_ws and #containing_ws.tabs > 1 then
+    local function is_remaining_tab(tab)
+      if not tab or tab == curr_tab or not vim.api.nvim_tabpage_is_valid(tab) then
+        return false
+      end
+      for _, tracked in ipairs(containing_ws.tabs) do
+        if tracked == tab then
+          return true
+        end
+      end
+      return false
+    end
+
+    for _, tab in ipairs(containing_ws.recent_tabs or {}) do
+      if is_remaining_tab(tab) then
+        restore_tab = tab
+        break
+      end
+    end
+    if not restore_tab then
+      for _, tab in ipairs(containing_ws.tabs) do
+        if is_remaining_tab(tab) then
+          restore_tab = tab
+          break
+        end
+      end
+    end
+  end
+
+  -- Remove the closing tab from every workspace's tab list and clear references
   -- to it, so duplicate trackings and stale last_active_tab pointers left
   -- over from earlier state drift don't survive the close.
   M.untrack_tab(curr_tab)
+  if restore_tab then
+    M.state.pending_tab_after_close = restore_tab
+  end
 
   if not containing_ws then
     M.recompute_tabline_workspaces()
