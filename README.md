@@ -173,7 +173,31 @@ Use these functions to add workspace and tab labels to a statusline or tabline:
 
 With shell integration, terminal tabs show a process icon while a command is running (OSC 133). Apps that report progress with OSC 9;4 show an agent icon. The same activity indicators appear on workspace labels, and a single-tab label is shown while activity is present.
 
-[Here's an example using Lualine](https://github.com/thiru/dotfiles/blob/master/.config/nvim/plugin/lualine.lua).
+### Lualine preset
+
+Lualine is optional. Install it alongside tabnv, then load the preset after `tabnv.setup()`:
+
+```lua
+vim.pack.add({
+  { src = 'https://github.com/thiru/tabnv.nvim' },
+  { src = 'https://github.com/nvim-lualine/lualine.nvim' },
+})
+
+require('tabnv').setup()
+require('tabnv.integrations.lualine').setup()
+```
+
+The preset configures tabnv's workspace and tab labels, plus a matching winbar and statusline. Pass Lualine options to `setup()` to override the defaults; section arrays replace the corresponding defaults:
+
+```lua
+require('tabnv.integrations.lualine').setup({
+  sections = {
+    lualine_a = { 'mode' },
+  },
+})
+```
+
+Call `get_config(opts)` to retrieve the merged configuration without applying it.
 
 ## Terminal integration
 
