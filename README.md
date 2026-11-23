@@ -26,6 +26,29 @@ I wrote this plugin because there are currently no tools that meet all of the fo
 - Connect to SSH hosts from a picker, with optional reconnect and password caching
 - Works equally well on Linux, macOS, and Windows thanks to Neovide
 
+<div align="center">
+  <img src="assets/screenshot.png" alt="tabnv screenshot">
+</div>
+
+- **Workspaces** (top-left):
+  - four workspaces are in use here: 1, 2, 3 and 10
+  - #3 is the active one
+    - it's named *tabnv.nvim* which is the name of the CWD
+    - this is the default and can be modified
+  - note the ✦ indicator in #2
+    - this means there is an agent that is actively working in a tab there
+  - note the ◉ indicator in #10
+    - this means there is a running process in a tab there
+- **Tabs** (top-right):
+  - there are two tabs open in the current workspace
+  - the first tab contains README.md as active buffer
+  - the second tab contains a terminal and is the active tab
+- **CWD** (bottom-left):
+  - the CWD (current working directory) is tracked as you change directory in your terminal
+  - this way you don't need to include the CWD in your shell prompt
+- **Git branch** (bottom-right):
+  - this is kept in sync as you change your branch
+
 ### Out of scope
 
 - Session persistence, as provided by tmux or GNU Screen
@@ -35,8 +58,11 @@ I wrote this plugin because there are currently no tools that meet all of the fo
 ## Prerequisites
 
 - Neovim 0.12 or later is recommended
-- Neovide is recommended as the UI shell to run Neovim within
-- Tabline and statusline plugins are highly recommended
+- [Neovide](https://neovide.dev/) is highly recommended as the UI/front-end because
+  - it works equally well on Linux, macOS and Windows
+  - imo has the best font rendering and functional animations
+  - there's no need for a terminal app since we're using Neovim's terminal emulator
+- Statusline and (especially) tabline plugins are highly recommended (e.g. [lualine](https://github.com/nvim-lualine/lualine.nvim)
 - [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) is optional and required only for the SSH picker
 
 ## Installation
@@ -66,7 +92,7 @@ Start Neovim normally, then use:
 - `<C-t>` to open a regular buffer in a new tab.
 - `<C-1>`…`<C-0>` to go to workspace 1-10
 
-To start Neovim with a terminal, run:
+To start Neovim with an immediate terminal, run:
 
 ```sh
 nvim +TabnvStart
