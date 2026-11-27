@@ -358,7 +358,7 @@ function M.set_keybinds()
   vim.keymap.set('n', M.config.leader .. 'f', h.new_float_term, { desc = 'New terminal (float)' })
 
   -- Terminal ESC
-  vim.keymap.set({ 'n', 't' }, '<C-space>', '<C-\\><C-n>', { desc = 'Escape terminal mode' })
+  vim.keymap.set('t', '<C-space>', '<C-\\><C-n>', { desc = 'Escape terminal mode' })
 
   -- Up/down
   vim.keymap.set({ 'c', 't' }, '<C-j>', '<Down>', { desc = 'Down arrow' })
