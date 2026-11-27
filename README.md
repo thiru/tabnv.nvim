@@ -62,7 +62,7 @@ I wrote this plugin because there are currently no tools that meet all of the fo
   - it works equally well on Linux, macOS and Windows
   - imo has the best font rendering and functional animations
   - there's no need for a terminal app since we're using Neovim's terminal emulator
-- Statusline and (especially) tabline plugins are highly recommended (e.g. [lualine](https://github.com/nvim-lualine/lualine.nvim)
+- Statusline and (especially) tabline plugins are highly recommended (e.g. [lualine](https://github.com/nvim-lualine/lualine.nvim))
 - [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) is optional and required only for the SSH picker
 
 ## Installation
