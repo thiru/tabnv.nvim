@@ -205,8 +205,11 @@ With shell integration, terminal tabs show a process icon while a command is run
 
 - **Window title:** combines the optional prefix (`<leader>p`), active workspace name, and current tab name.
 - **Directory tracking:** OSC 7 updates the terminal tab's name and tab-local working directory (`tcd`). Modern shells can emit OSC 7 through integrations such as [ohmyzsh's osc7 plugin](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/osc7).
-- **Command status:** shell integration that emits OSC 133 enables a running-command icon and notifications when a command finishes in an unfocused terminal tab.
-- **Agent progress:** apps that emit OSC 9;4 progress sequences show an activity icon. Pi supports this through `terminal.showTerminalProgress` in `/settings` (off by default); OpenCode provides `terminalProgressBarEnabled`.
+- **Command status:** shell integration that emits OSC 133 enables a running-command icon and
+  completion notifications.
+- **Agent progress:** apps that emit OSC 9;4 progress sequences show an activity icon and trigger a
+  notification when activity ends.
+- **Desktop notifications:** enabled by default when Neovim loses focus.
 - **Tab state:** terminal mode and cursor position are preserved when switching between windows in a tab.
 
 ## SSH picker

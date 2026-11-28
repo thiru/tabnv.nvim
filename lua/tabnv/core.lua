@@ -1,12 +1,19 @@
 --- Contains the core functionality of this plugin.
 
 local M = {
-  state = {},
+  state = { nvim_focused = true },
 }
 
 local h = require('tabnv.helpers')
 local u = require('tabnv.utils')
 local ws = require('tabnv.workspace')
+local notifications = require('tabnv.notifications')
+
+local function notify_os(msg)
+  if M.config.os_notifications and not M.state.nvim_focused then
+    notifications.send('Tabnv - Neovim', msg)
+  end
+end
 
 --- Setup core aspects of the plugin.
 ---@param config tabnv.Config
@@ -82,6 +89,13 @@ end
 
 --- Create various auto-commands to provide a more seamless experience
 function M.create_autocmds()
+  vim.api.nvim_create_autocmd({ 'FocusGained', 'FocusLost' }, {
+    callback = function(ev)
+      M.state.nvim_focused = ev.event == 'FocusGained'
+    end,
+    group = vim.api.nvim_create_augroup('tabnv_focus', { clear = true }),
+  })
+
   -- NOTE: use these two autocmds to save and restore terminal tab mode & coord
   vim.api.nvim_create_autocmd('WinLeave', {
     callback = function()
@@ -192,12 +206,17 @@ function M.create_autocmds()
       -- OSC 9;4 terminal progress (used by Pi/OpenCode and supported terminals).
       local progress_state = tonumber(seq:match('^\027]9;4;(%d+)'))
       if progress_state and progress_state >= 0 and progress_state <= 4 then
+        local was_active = vim.b[ev.buf].tabnv_osc94_active
         if progress_state == 0 then
           vim.b[ev.buf].tabnv_osc94_active = nil
+          M.update_process_indicator()
+          if was_active then
+            M.handle_agent_complete()
+          end
         else
           vim.b[ev.buf].tabnv_osc94_active = true
+          M.update_process_indicator()
         end
-        M.update_process_indicator()
         return
       end
 
@@ -274,38 +293,40 @@ function M.handle_process_complete(bufnr, exit_code, cmd)
   vim.b[bufnr].tabnv_osc94_active = nil
   M.update_process_indicator()
 
-  -- Ensure we're looking at the same command/tab
-  local start_tab_ok = false
-  if start_tab and vim.api.nvim_tabpage_is_valid(start_tab) then
-    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(start_tab)) do
-      if vim.api.nvim_win_get_buf(win) == bufnr then
-        start_tab_ok = true
-        break
-      end
-    end
-  end
-
-  -- Don't show a message if start tab no longer exists
-  if not start_tab_ok then
-    return
-  end
-
-  -- Don't show a message if user is already viewing the start tab
-  if start_tab == vim.api.nvim_get_current_tabpage() then
-    return
-  end
-
+  local start_tab_valid = start_tab and vim.api.nvim_tabpage_is_valid(start_tab)
+  local tab_name = start_tab_valid and u.get_tab_name(start_tab) or 'Terminal'
   local level = vim.log.levels.INFO
   local msg
   if exit_code == nil then
-    msg = ('[%s] %q finished'):format(u.get_tab_name(start_tab), cmd)
+    msg = ('[%s] %q finished'):format(tab_name, cmd)
   elseif exit_code == 0 then
-    msg = ('[%s] %q finished successfully'):format(u.get_tab_name(start_tab), cmd)
+    msg = ('[%s] %q finished successfully'):format(tab_name, cmd)
   else
-    msg = ('[%s] %q finished (exit code %d)'):format(u.get_tab_name(start_tab), cmd, exit_code)
+    msg = ('[%s] %q finished (exit code %d)'):format(tab_name, cmd, exit_code)
     level = vim.log.levels.WARN
   end
-  vim.notify(msg, level)
+  notify_os(msg)
+
+  -- Keep the existing Neovim message for a command completed in another tab.
+  if not start_tab_valid then
+    return
+  end
+
+  local start_tab_ok = false
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(start_tab)) do
+    if vim.api.nvim_win_get_buf(win) == bufnr then
+      start_tab_ok = true
+      break
+    end
+  end
+  if start_tab_ok and start_tab ~= vim.api.nvim_get_current_tabpage() then
+    vim.notify(msg, level)
+  end
+end
+
+--- Handle an agent activity having ended (via an OSC 9;4 reset).
+function M.handle_agent_complete()
+  notify_os('Agent activity completed')
 end
 
 --- Create a new tab with a terminal and enter insert mode.
